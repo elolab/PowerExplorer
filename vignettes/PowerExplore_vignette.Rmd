@@ -1,0 +1,135 @@
+---
+title: "PowerExplorer Manual"
+author: "Xu Qiao"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{PowerExplorer Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+Power and sample size estimation are non-trival 
+PowerExplorer is a power estimation and prediction tool currently designed for RNA-Seq and Quantitative Proteomics analyses. The estimation is based on simulation method which extend the sample size accordinng to the distribution parameters estimated from the input data.
+
+\newpage
+
+## Prepare Input Data
+
+For datasets of both RNA-Seq (gene expression levels) and Quantitative Proteomics (peptide abundance levels), the data matrix should arrange gene/protein entries as rows and samples as columns, for example:
+```{r showDataExample, message=FALSE, warning=FALSE}
+library(PowerExplorer)
+data("exampleRNASeqData")
+head(exampleRNASeqData$dataMatrix[,1:5])
+```
+
+A grouping vector indicating the sample groups to which all the samples belong should also be created, for example:
+```{r}
+show(exampleProteomicsData$groupVec)
+```
+```{r}
+colnames(exampleProteomicsData$dataMatrix)
+```
+
+Note that the grouping vector length should be equal to the column number of the data matrix, all groups conventionally should have the same number of samples, otherwise the tool will automatically even all the sample numbers to the least number to achieve equal groups.
+
+\newpage
+
+## Run Estimation
+
+Here we use a randomly generated proteomics dataset `exampleProteomicsData` as an example to estimate the current power of the dataset and then predict the power according to desired sample sizes. The input dataset is named as `dataMatrix` and the grouping vector as `groupVec`.
+
+To run the estimation, apart from the input, we still need to specify the following parameters:
+
+- `isLogTransformed`: FALSE, the input data is not log-transformed
+- `dataType`: "Proteomics", declare the datatype as "Proteomics"
+- `minLFC`: 0.5, the threshold of Log2 Fold Change, proteins with lower LFC will be discarded
+- `alpha`: 0.05, the controlled false positive rate
+- `ST`: 100, the statistical test and data simulation of each protein entry will be run 100 times
+- `seed`: 345, specify the seed of the random variables to maintain the reproducibility
+- `showProcess`: FALSE, no detailed processes will be shown, set to TRUE if debug is needed
+- `saveSimulatedData`: TRUE, save the simulated data in root/savedData directory
+
+The results will be summaried in barplot, boxplot and summary table.
+
+```{r estimation run, fig.keep='none', message=FALSE, warning=FALSE, results='hide'}
+library(PowerExplorer)
+data("exampleProteomicsData")
+estimatedPower <- estimateCurrentPower(inputDataMatrix = exampleProteomicsData$dataMatrix, 
+                                       groupVec = exampleProteomicsData$groupVec, 
+                                       isLogTransformed = FALSE, 
+                                       dataType = "Proteomics", 
+                                       minLFC = 0.5, 
+                                       alpha = 0.05, 
+                                       ST = 1, 
+                                       seed = 345, 
+                                       showProcess = FALSE, 
+                                       saveSimulatedData = FALSE)
+```
+
+The estimated results can be summarized using `plotCurrentPower`, the input data should be the estimated power object produced from  `estimateCurrentPower`, the result graph can be saved if wanted.
+
+```{r plot estimated power, echo = FALSE}
+plotCurrentPower(powerList = estimatedPower, savePlot = FALSE)
+```
+
+\newpage
+
+## Run Predictions
+
+Here we load the same dataset used in the previous estimation, to run a prediction, a few more parameters are needed:
+
+- `isLogTransformed`: FALSE, the input data is not log-transformed
+- `dataType`: "Proteomics", declare the datatype as "Proteomics"
+- `minLFC`: 0.5, the threshold of Log2 Fold Change, proteins with lower LFC will be discarded
+- `alpha`: 0.05, the controlled false positive rate
+- `ST`: 30, the statistical test and data simulation of each protein entry will be run 30 times, recommend to be more than 50
+- `seed`: 345, specify the seed of the random variables to maintain the reproducibility
+- `showProcess`: FALSE, no detailed processes will be shown, set to TRUE if debug is needed
+- `saveSimulatedData`: TRUE, save the simulated data in root/savedData directory
+
+```{r prediction run, fig.keep='none', message=FALSE, warning=FALSE, results='hide'}
+data("exampleProteomicsData")
+predictedPower <- predictSampleSizePower(inputDataMatrix = exampleProteomicsData$dataMatrix,
+                                         groupVec = exampleProteomicsData$groupVec,
+                                         isLogTransformed = FALSE,
+                                         dataType = "Proteomics",
+                                         rangeSimNumRep = c(5, 10, 15, 20),
+                                         alpha = 0.05,
+                                         ST = 1,
+                                         seed = 345,
+                                         showProcess = FALSE,
+                                         saveSimulatedData = FALSE)
+```
+
+The predicted results can be summaried using `plotPredictedPower`. The input should be the predicted power object returned from `predictSampleSizePower`, the summary can be optionally visualized by setting the following parameters:
+
+- `plotType`: power-samplesize-foldchange relationship can be visualized optionally between "lineplot" and "heatmap".
+- `minLFC` and `maxLFC`: to observe power in a specific range of LFC
+- `LFCscale`: to determine the LFC scale of the observation
+- `savePlot`: whether the graph will be saved as a picture file
+
+\newpage
+Lineplot (LFCscale = 0.5):
+```{r LinePlot, fig.height=3.5}
+plotPredictedPower(predictedPower = predictedPower,
+                   plotType = "lineplot",
+                   LFCscale = 0.5,
+                   savePlot = FALSE)
+```
+
+Heatmap (LFCscale = 0.5):
+```{r Heatmap, fig.height=3.5}
+plotPredictedPower(predictedPower = predictedPower,
+                   plotType = "heatmap",
+                   LFCscale = 0.5,
+                   savePlot = FALSE)
+```
