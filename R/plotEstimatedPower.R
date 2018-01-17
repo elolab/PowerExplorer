@@ -76,7 +76,10 @@ plotEstimatedPower <- function(powerList) {
             subtitle=paste("minLFC threshold:",
                            attributes(powerList)$minLFC)) +
     xlab("Comparison pair") + ylab("Power") +
-    theme(axis.text.x=element_text(angle=60, hjust=1))
+    theme_light(base_size = 9)+
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          legend.text=element_text(size=8),
+          legend.key.size = unit(0.5, "cm"))
 
   power.barplot <- ggplot(data=barplot.data,
                           aes_string("comparison",
@@ -89,21 +92,23 @@ plotEstimatedPower <- function(powerList) {
                 "Num of genes above minLFC",
                 "Num of proteins above minLFC")) +
     xlab("Comparison pair") +
-    theme(axis.text.x=element_text(angle=60, hjust=1))
+    theme_light(base_size = 9)+
+    theme(axis.text.x=element_text(angle=60, hjust=1),
+          legend.text=element_text(size=8),
+          legend.key.size = unit(0.5, "cm"))
 
-  summary.table <- tableGrob(SummaryTable,
+  sumTable <- tableGrob(SummaryTable,
                              rows=NULL,
-                             theme=ttheme_default(base_size=10))
+                             theme=ttheme_default(base_size=8))
 
-  arranged.plots <- grid.arrange(power.barplot,
-                                 power.boxplot,
-                                 summary.table,
-                                 top="Estimated Power Summary",
-                                 newpage=TRUE,
-                                 layout_matrix=matrix(c(1,2,3,3),
-                                                      nrow=2, byrow=TRUE))
+  grid.arrange(power.barplot,
+               power.boxplot,
+               sumTable,
+               top="Estimated Power Summary",
+               newpage=TRUE,
+               layout_matrix=matrix(c(1,2,3,3),
+                                    nrow=2, byrow=TRUE))
 
-  show(arranged.plots)
   # if(savePlot) {
   #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
   #   nam <- ifelse(dataTypeSelect,

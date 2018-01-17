@@ -27,13 +27,13 @@ This vignette demonstrates the applications of R package `PowerExplorer` as the 
 ## Introduction
 Power and sample size estimation is still one of the important principles in designing next-generation sequencing experiments to discover differential expressions, while power estimation method specialized for proteomics data has not yet developed.
 
-Here we present `PowerExplorer`, which is a power estimation and prediction tool currently applicable for RNA-Seq and quantitative proteomics experiments. The calculation procedure starts with the estimation of distribution parameters of the each gene or protein (following referred as entry for simplicity) accordingly, with the obtained prior distribution of each entry, a specified amount of simulations are executed to repetitively generate data (read counts for RNA-Seq and peptide abundance for proteomics) for each entry based on null and alternative hypotheses respectively, furthermore, the corresponding statistical tests are performed for each hypothesis, eventually from which result statistics will be summarized to calculate the statistical power.
+Here we present `PowerExplorer`, which is a power estimation and prediction tool currently applicable to RNA-Seq and quantitative proteomics experiments. The calculation procedure starts with the estimation of distribution parameters of the each gene or protein (following referred as entry for simplicity) accordingly, with the obtained prior distribution of each entry, a specified amount of simulations are executed to repetitively generate data (read counts for RNA-Seq and peptide abundance for proteomics) for each entry based on null and alternative hypotheses respectively, furthermore, the corresponding statistical tests (t-test or Wald-test) are performed for each hypothesis, eventually from which result statistics will be summarized to calculate the statistical power.
 
 \newpage
 
 ## Prepare Input Data
 
-For datasets of both RNA-Seq (gene expression levels) and quantitative proteomics (peptide abundance levels), the data matrix should be arranged as gene/protein entries in rows and samples in columns, for example:
+For datasets of both RNA-Seq (gene expression levels) and quantitative proteomics (peptide abundance levels), the data matrix should be arranged as entries in rows and samples in columns, for example:
 ```{r showDataExample, message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")

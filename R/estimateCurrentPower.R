@@ -230,5 +230,6 @@ estimateCurrentPower <- function(inputDataMatrix, groupVec,
   message(">> Estimated power saved in savedRData directory.")
   message(paste0(">> Size: ", round(file.size(
     paste0(savedRDataDir, filename.power))/2^10, 2), " KB"))
+  plotEstimatedPower(currentPower)
   return(currentPower)
 }

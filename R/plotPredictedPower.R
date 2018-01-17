@@ -75,6 +75,16 @@ plotPredictedPower <- function(predictedPower,
                                 levels = unique(plot.data$lfc.range))
   plot.data$repNum <- factor(plot.data$repNum,
                              levels = unique(plot.data$repNum))
+  SummaryTable <- aggregate(x = plot.data$power, 
+                            by = list(plot.data$comp, plot.data$repNum), 
+                            FUN = mean)
+  SummaryTable <- SummaryTable[order(SummaryTable$Group.1), ]
+  repNums <- paste0("repNum:", unique(SummaryTable$Group.2))
+  SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2), SummaryTable$Group.1))
+  sumTable <- tableGrob(SummaryTable,
+                        rows=row.names(SummaryTable),
+                        cols=repNums,
+                        theme=ttheme_default(base_size=8))
   numPlot <- dim(predictedPower)[3]
   if(identical(plotType,"lineplot")) {
     p.trend <-
@@ -91,10 +101,18 @@ plotPredictedPower <- function(predictedPower,
               "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
                     LFCscale, minLFC, maxLFC)) +
       xlab("LFC segment") + ylab("Average power") +
-      guides(colour=guide_legend(title="replicate number")) +
-      theme(legend.position="top",
-            axis.text.x=element_text(angle=60, hjust=1))
-    show(p.trend)
+      guides(colour=guide_legend(title="repNum")) +
+      theme_light(base_size = 9) +
+      theme(axis.text.x=element_text(angle=60, hjust=1),
+            legend.text=element_text(size=8),
+            legend.position="right",
+            legend.key.size = unit(0.5, "cm"))
+    
+    grid.arrange(p.trend,
+                 sumTable,
+                 newpage=TRUE,
+                 layout_matrix=matrix(c(1,2),
+                                      nrow=2, byrow=TRUE))
     # if(savePlot) {
     #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
     #   ggsave(filename=pngName("Prediected Power Summary(lineplot)"),
@@ -107,17 +125,25 @@ plotPredictedPower <- function(predictedPower,
       geom_tile(aes_string(fill="power")) +
       scale_fill_gradient2(low="blue", mid="yellow", high="red",
                            midpoint=0.6,
-                           guide_colorbar(title="power")) +
+                           guide_colorbar(title="power", title.vjust = 1)) +
       xlab("Replicate number") + ylab("LFC range") +
       facet_wrap(~comp) +
-      theme(legend.position="right",
-            axis.text.y=element_text(angle=60, vjust=-1)) +
+      theme_light(base_size = 9)+
+      theme(axis.text.x=element_text(angle=60, hjust=1),
+            legend.text=element_text(size=8),
+            legend.position="right",
+            legend.key.size = unit(0.5, "cm"))+
       ggtitle(label="Average Predicted Power within LFC ranges",
               subtitle=
                 sprintf(
               "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
                         LFCscale, minLFC, maxLFC))
-    show(p.heat)
+    
+    grid.arrange(p.heat,
+                 sumTable,
+                 newpage=TRUE,
+                 layout_matrix=matrix(c(1,2),
+                                      nrow=2, byrow=TRUE))
     # if(savePlot) {
     #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
     #   ggsave(filename=pngName("Prediected Power Summary(heatmap)"),

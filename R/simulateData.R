@@ -151,7 +151,6 @@ simulateData <- function(para0.list,
   attr(simulateData, "repNum") <- simNumRep
   # Save data for later studies
   timestamp()
-  message(">> Simulations Complete!")
   if(saveRData == TRUE) {
     if(!("savedRData" %in% list.files())) dir.create("savedRData")
     # simulated data name indicates the basic information
