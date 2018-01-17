@@ -15,7 +15,7 @@ from a spiked-in proteomics dataset with 5 groups.
 \examples{
 
 data(exampleEstimatedPower)
-plotCurrentPower(powerList = exampleEstimatedPower,
+plotEstimatedPower(powerList = exampleEstimatedPower,
                  savePlot = FALSE)
 
 }

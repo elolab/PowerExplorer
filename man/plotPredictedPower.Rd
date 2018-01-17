@@ -5,7 +5,7 @@
 \title{Observe Predicted Power Within Different LFC Scales}
 \usage{
 plotPredictedPower(predictedPower, plotType = c("lineplot", "heatmap"),
-  minLFC = 0, maxLFC = NA, LFCscale = NA, savePlot = FALSE)
+  minLFC = 0, maxLFC = NA, LFCscale = NA)
 }
 \arguments{
 \item{predictedPower}{the \code{ predictedPower} returned from
@@ -21,9 +21,6 @@ which genes will be included in the graph.}
 right edge of the LFC range within which genes will be included in the graph.}
 
 \item{LFCscale}{the size of each unit when segmenting predicted power by LFC}
-
-\item{savePlot}{logical; if \code{TRUE}, save the plot into
-folder "savedPlots" in work directory.}
 }
 \value{
 plot(s) of power density under multiple sample sizes
@@ -40,22 +37,19 @@ data(examplePredictedPower)
 # plot a heatmap
 plotPredictedPower(examplePredictedPower,
                    plotType="heatmap",
-                   LFCscale=1,
-                   savePlot=TRUE)
+                   LFCscale=1)
 plotPredictedPower(examplePredictedPower,
                    plotType="lineplot",
-                   LFCscale=1,
-                   savePlot=TRUE)
+                   LFCscale=1)
 #It is possible to observe power trend in different scales and ranges of LFCs
 plotPredictedPower(examplePredictedPower,
                    plotType="lineplot",
                    minLFC=0,
                    maxLFC=3,
-                   LFCscale=0.5,
-                   savePlot=TRUE)
+                   LFCscale=0.5)
 plotPredictedPower(examplePredictedPower,
                    plotType="heatmap",
                    minLFC=0,
                    maxLFC=3,
-                   LFCscale=1, savePlot=TRUE)
+                   LFCscale=1)
 }

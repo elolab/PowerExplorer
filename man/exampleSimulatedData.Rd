@@ -9,7 +9,8 @@
 data(exampleSimulatedData)
 }
 \description{
-This is an example simulated data objected used for plotStatisticsDensity
+This is an example simulated data object
+used for demostrate function \code{plotStatisticsDensity}
 }
 \examples{
 
