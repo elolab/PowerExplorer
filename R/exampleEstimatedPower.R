@@ -12,7 +12,7 @@
 #' @examples
 #'
 #' data(exampleEstimatedPower)
-#' plotCurrentPower(powerList = exampleEstimatedPower,
+#' plotEstimatedPower(powerList = exampleEstimatedPower,
 #'                  savePlot = FALSE)
 #'
 "exampleEstimatedPower"

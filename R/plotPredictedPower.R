@@ -11,8 +11,6 @@
 #' @param maxLFC default as NA (the maximun value in data will be used) the
 #' right edge of the LFC range within which genes will be included in the graph.
 #' @param LFCscale the size of each unit when segmenting predicted power by LFC
-#' @param savePlot logical; if \code{TRUE}, save the plot into
-#' folder "savedPlots" in work directory.
 #' @return plot(s) of power density under multiple sample sizes
 #' @export
 #' @import ggplot2
@@ -25,31 +23,28 @@
 #' # plot a heatmap
 #' plotPredictedPower(examplePredictedPower,
 #'                    plotType="heatmap",
-#'                    LFCscale=1,
-#'                    savePlot=TRUE)
+#'                    LFCscale=1)
 #' plotPredictedPower(examplePredictedPower,
 #'                    plotType="lineplot",
-#'                    LFCscale=1,
-#'                    savePlot=TRUE)
+#'                    LFCscale=1)
 #' #It is possible to observe power trend in different scales and ranges of LFCs
 #' plotPredictedPower(examplePredictedPower,
 #'                    plotType="lineplot",
 #'                    minLFC=0,
 #'                    maxLFC=3,
-#'                    LFCscale=0.5,
-#'                    savePlot=TRUE)
+#'                    LFCscale=0.5)
 #' plotPredictedPower(examplePredictedPower,
 #'                    plotType="heatmap",
 #'                    minLFC=0,
 #'                    maxLFC=3,
-#'                    LFCscale=1, savePlot=TRUE)
+#'                    LFCscale=1)
 # Author: Xu Qiao
 # Created: 25th, Sep, 2017
 # Last Modifed: 10th, Jan, 2018
 plotPredictedPower <- function(predictedPower,
                                plotType=c("lineplot", "heatmap"),
                                minLFC=0, maxLFC=NA,
-                               LFCscale=NA, savePlot=FALSE) {
+                               LFCscale=NA) {
   if (missing(plotType)) stop("plotType is missing, with no default")
   if (missing(LFCscale)) stop("LFCscale is missing, with no default")
   lfc <- attributes(predictedPower)$LFCList
@@ -100,12 +95,12 @@ plotPredictedPower <- function(predictedPower,
       theme(legend.position="top",
             axis.text.x=element_text(angle=60, hjust=1))
     show(p.trend)
-    if(savePlot) {
-      if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
-      ggsave(filename=pngName("Prediected Power Summary(lineplot)"),
-             plot=p.trend, path=paste0(getwd(), "/savedPlots"),
-             width=7, height=5)
-    }
+    # if(savePlot) {
+    #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
+    #   ggsave(filename=pngName("Prediected Power Summary(lineplot)"),
+    #          plot=p.trend, path=paste0(getwd(), "/savedPlots"),
+    #          width=7, height=5)
+    #}
   }
   else if(identical(plotType, "heatmap")) {
     p.heat <- ggplot(plot.data, aes_string("repNum", "lfc.range")) +
@@ -123,13 +118,13 @@ plotPredictedPower <- function(predictedPower,
               "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
                         LFCscale, minLFC, maxLFC))
     show(p.heat)
-    if(savePlot) {
-      if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
-      ggsave(filename=pngName("Prediected Power Summary(heatmap)"),
-             plot=p.heat,
-             path=paste0(getwd(), "/savedPlots"),
-             width=7, height=5)
-    }
+    # if(savePlot) {
+    #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
+    #   ggsave(filename=pngName("Prediected Power Summary(heatmap)"),
+    #          plot=p.heat,
+    #          path=paste0(getwd(), "/savedPlots"),
+    #          width=7, height=5)
+    #}
   }
   else {stop("Incorrect plotType.")}
 }
