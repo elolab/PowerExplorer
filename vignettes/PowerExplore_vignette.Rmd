@@ -3,6 +3,7 @@ title: "PowerExplorer Manual"
 author: "Xu Qiao"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
+toc: true
 vignette: >
   %\VignetteIndexEntry{PowerExplorer Manual}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,7 +16,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-## Abstract
+
+\newpage
+
+# Abstract
 This vignette demonstrates the applications of R package `PowerExplorer` as the power and sample size estimation tool for RNA-Seq and quantitative proteomics data. 
 
 `PowerExplorer` contains following main features:
@@ -24,12 +28,12 @@ This vignette demonstrates the applications of R package `PowerExplorer` as the 
 - Prediction of power according to the future settings (e.g. increasing sample size)
 - Visualizations of estimation and prediction results
 
-## Introduction
+# Introduction
 Power and sample size estimation is still one of the important principles in designing next-generation sequencing experiments to discover differential expressions, a few methods on power estimation for RNA-Seq data have been studied, while the one specialized for proteomics data has not yet been developed. `PowerExplorer`is a power estimation and prediction tool currently applicable to RNA-Seq and quantitative proteomics experiments. The calculation procedure starts with estimating the distribution parameters of each gene or protein (following referred as entry for simplicity) accordingly, with the obtained prior distribution of each entry, a specified amount of simulations are executed to generate data (read counts for RNA-Seq and peptide abundance for proteomics) repetitively for each entry based on null and alternative hypotheses. Furthermore, the corresponding statistical tests (t-test or Wald-test) are performed and the test statistics are collected, eventually the result statistics will be summarized to calculate the statistical power.
 
 \newpage
 
-## Prepare Input Data
+# Prepare Input Data
 
 For both RNA-Seq (gene expression levels) and quantitative proteomics (peptide abundance levels) datasets, the data matrix should be arranged as entries in rows and samples in columns, for example:
 ```{r showDataExample, message=FALSE, warning=FALSE}
@@ -50,7 +54,7 @@ Note that the grouping vector length should be equal to the column number of the
 
 \newpage
 
-## Run Estimation
+# Run Estimation
 
 Here we use a randomly generated proteomics dataset `exampleProteomicsData` as an example to estimate the current power of the dataset. The input dataset is named as `dataMatrix` and the grouping vector as `groupVec`.
 
@@ -82,15 +86,26 @@ estimatedPower <- estimateCurrentPower(inputDataMatrix = exampleRNASeqData$dataM
                                        saveSimulatedData = FALSE)
 ```
 
-The estimated results can be summarized using `plotEstimatedPower`, the input data should be the estimated power object produced from  `estimateCurrentPower`.
+A part of the output should look like this:
+```{r echo=FALSE, out.width = "90%"}
+imgpath <- paste0(getwd(), "/vignettes/outputExample.png")
+knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
+```
+
+\newpage
+
+## Visualization
+The estimated results can be summarized using `plotEstimatedPower`, the only input needed is the `estimatedPower`, which should be the estimated power object returned from  `estimateCurrentPower`.
 
 ```{r plot estimated power, echo = FALSE}
 plotEstimatedPower(powerList = estimatedPower)
 ```
 
+The graph contains 3 plots, the `barplot` vertically shows the number of genes/proteins above the minLFC threshold, columns indicates the comparison pairs, each column presents the proportions of three power levels in three colours as indicated in the legend `power.level`; The boxplot shows the overall power distribution of each comparsion; And the summary table summarize the power in a numerical way with the same information shown in the previous two plots.
+
 \newpage
 
-## Run Predictions
+# Run Predictions
 With the same dataset, to run a prediction, a few more parameters are needed:
 
 - `isLogTransformed`: FALSE; the input data is not log-transformed.
@@ -104,7 +119,7 @@ With the same dataset, to run a prediction, a few more parameters are needed:
 
 Similar to the estimation process, however, the simulations will be excuted with each sample size specified in `rangeSimNumRep`. (Note: the term sample size in this vignette refers to the replicate number of each group/case)
 
-```{r prediction run, fig.keep='none', message=FALSE, warning=FALSE, results='hide'}
+```{r prediction run, eval=FALSE, include=FALSE, echo=TRUE}
 data("exampleRNASeqData")
 predictedPower <- predictSampleSizePower(inputDataMatrix = exampleRNASeqData$dataMatrix,
                                          groupVec = exampleRNASeqData$groupVec,
@@ -118,22 +133,41 @@ predictedPower <- predictSampleSizePower(inputDataMatrix = exampleRNASeqData$dat
                                          saveSimulatedData = FALSE)
 ```
 
+A part of the output should look like this:
+```{r echo=FALSE, out.width = "90%"}
+imgpath <- paste0(getwd(), "/vignettes/outputExample2.png")
+knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
+```
+
+\newpage
+
+## Visualization
+
 The predicted results can be summaried using `plotPredictedPower`. The input should be the predicted power object returned from `predictSampleSizePower`, the summary can be optionally visualized by setting the following parameters:
 
 - `plotType`: power-samplesize-foldchange relationship can be visualized optionally between "lineplot" and "heatmap".
 - `minLFC` and `maxLFC`: to observe power in a specific range of LFC
 - `LFCscale`: to determine the LFC scale of the observation
 
-\newpage
+### Line Plot
 
 Lineplot (LFCscale = 0.5):
 ```{r LinePlot}
-plotPredictedPower(predictedPower, plotType = "lineplot", LFCscale = 0.5)
+data("examplePredictedPower")
+plotPredictedPower(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
 ```
+
+Lineplot is one of the optional outputs of `plotPredictedPower`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across each Log2 Fold Change segment, which resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and the colours indicate the average power of the certain sample size as shown in the legend besides the plot. In addition, a summary table below shows the average power of each comparison across the sample sizes. 
+
+For instance, the line plot here shows the average power of four sample sizes (5 to 30, step=5) in LFCscale of 0.5, the LFC range is between 0 and 5, each LFC segment shows the average power of the entries with the LFC in this range, here the higher LFC has higher power, additionally as the repNum (sample size) shown with different colours, the average power of each LFC range increases with the larger sample sizes. 
+
+### Heatmap
 
 Heatmap (LFCscale = 0.5):
 ```{r Heatmap}
-plotPredictedPower(predictedPower, plotType = "heatmap", LFCscale = 0.5)
+data("examplePredictedPower")
+plotPredictedPower(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
 ```
 
-It's also possible to observe the power tendencies in different LFC ranges if given minLFC and maxLFC.
+The heatmap option presents the power predictions in the similar way, vertically each heatmap shows overall LFC level of a comparison, sometimes a certain range shows blank space, since the result LFC vary in different comparison pairs. The average power of each LFC range is scaled with colours between blue and red, the middle value (0.6) is coloured as yellow, as shown in the colour bar on the right. For example, this graph shows the power increases with larger sample sizes. The same summary table is also shown on the bottom.
+

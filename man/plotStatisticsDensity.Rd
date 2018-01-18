@@ -4,8 +4,7 @@
 \alias{plotStatisticsDensity}
 \title{Plot t-Statistics Density Between Null and Alternative Hypothesis}
 \usage{
-plotStatisticsDensity(simulatedData, entryID, alpha = 0.05,
-  savePlot = FALSE)
+plotStatisticsDensity(simulatedData, entryID, alpha = 0.05)
 }
 \arguments{
 \item{simulatedData}{the simulated data object}
@@ -14,9 +13,6 @@ plotStatisticsDensity(simulatedData, entryID, alpha = 0.05,
 in the countData oject}
 
 \item{alpha}{controlled false positive rate}
-
-\item{savePlot}{logical; if \code{TRUE}, save the plot into folder
-"savedPlots" in work directory.}
 }
 \value{
 A plot presents the t-statistics density between null and
