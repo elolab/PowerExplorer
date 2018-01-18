@@ -88,7 +88,7 @@ estimatedPower <- estimateCurrentPower(inputDataMatrix = exampleRNASeqData$dataM
 
 A part of the output should look like this:
 ```{r echo=FALSE, out.width = "90%"}
-imgpath <- paste0(getwd(), "/vignettes/outputExample.png")
+imgpath <- paste0(getwd(), "/outputExample.png")
 knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
 ```
 
@@ -135,7 +135,7 @@ predictedPower <- predictSampleSizePower(inputDataMatrix = exampleRNASeqData$dat
 
 A part of the output should look like this:
 ```{r echo=FALSE, out.width = "90%"}
-imgpath <- paste0(getwd(), "/vignettes/outputExample2.png")
+imgpath <- paste0(getwd(), "/outputExample2.png")
 knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
 ```
 
