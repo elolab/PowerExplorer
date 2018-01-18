@@ -6,8 +6,6 @@
 #' @param entryID the gene name (string) or the row number (numeric)
 #' in the countData oject
 #' @param alpha controlled false positive rate
-#' @param savePlot logical; if \code{TRUE}, save the plot into folder
-#' "savedPlots" in work directory.
 #' @return A plot presents the t-statistics density between null and
 #' alternative hypothesis
 #' @export
@@ -26,8 +24,7 @@
 
 plotStatisticsDensity <- function(simulatedData,
                                   entryID,
-                                  alpha=0.05,
-                                  savePlot=FALSE) {
+                                  alpha=0.05) {
   attrs <- attributes(simulatedData)
   if(attrs$dataType == "RNA-Seq") {
     dataTypeSelect <- TRUE
@@ -43,6 +40,7 @@ plotStatisticsDensity <- function(simulatedData,
     stop(sprintf("Incorrect Protein/Gene ID...\nTry something like %s",
                  paste(entryList[1:3], collapse=", ")))
   }
+  x<-y<-NULL
   nullStatistics <- sqrt(simulatedData$nullData$testStatistics[entryID, ])
   alterStatistics <- sqrt(simulatedData$alterData$testStatistics[entryID, ])
   dens.null.xy <- with(density(nullStatistics), data.frame(x,y))
@@ -79,12 +77,12 @@ plotStatisticsDensity <- function(simulatedData,
                label=paste("alpha: ", alpha), colour="red") +
     geom_label(x=max(dens.all$x)/2, y=max(dens.all$y)/3,
                label=paste("power: ", pwr), colour="orange")
-  if(savePlot) {
-    if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
-    ggsave(filename=paste0("Statistics Plot of ", entryID, ".png"),
-           plot=p, width=7, height=5, path=paste0(getwd(), "/savedPlots"))
-    cat("Image saved to /savedPlots.")
-  }
+  # if(savePlot) {
+  #   if(!("savedPlots" %in% list.files())) dir.create("savedPlots")
+  #   ggsave(filename=paste0("Statistics Plot of ", entryID, ".png"),
+  #          plot=p, width=7, height=5, path=paste0(getwd(), "/savedPlots"))
+  #   cat("Image saved to /savedPlots.")
+  # }
   show(p)
 }
 
