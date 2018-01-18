@@ -15,6 +15,6 @@
 #'plotPredictedPower(examplePredictedPower,
 #'                   plotType="lineplot",
 #'                   minLFC=0, maxLFC=4,
-#'                   LFCscale=0.5, savePlot=FALSE)
+#'                   LFCscale=0.5)
 #'
 "examplePredictedPower"
