@@ -1,6 +1,6 @@
 Package: PowerExplorer
 Title: Power Estimation Tool for RNA-Seq and proteomics data
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: person("Xu", "Qiao", email = "xu.qiao@utu.fi", role = c("aut", "cre"))
 Description: Estimate and predict power among groups and multiple sample sizes with simulated data, the simulations are operated based on distribution parameters estimated from the provided input dataset.
 biocViews: RNASeq, Proteomics, DifferentialExpression, MultipleComparison
