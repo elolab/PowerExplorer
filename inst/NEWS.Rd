@@ -4,5 +4,5 @@
 
 \section{Version 0.99.0}{\itemize{
 \item
-The first release.
+The review version.
 }}
