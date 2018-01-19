@@ -44,18 +44,18 @@ plotEstimatedPower <- function(powerList) {
 
   SummaryTable <- data.frame(
     Comparison=names(powerList),
-    Gnum=sapply(powerList, length),
-    A.P=sapply(powerList, function(x) round(mean(x, na.rm=TRUE), 2)),
-    H.P=sapply(powerList, function(x)
+    Gnum=vapply(powerList, length, integer(1)),
+    A.P=vapply(powerList, function(x) round(mean(x, na.rm=TRUE), 2), double(1)),
+    H.P=vapply(powerList, function(x)
                           sprintf("%s (%s%%)", sum(x >= 0.8),
-                                  round((sum(x>=0.8)*100/length(x)),2))),
-    L.P=sapply(powerList, function(x)
+                                  round((sum(x>=0.8)*100/length(x)),2)), ""),
+    L.P=vapply(powerList, function(x)
                           sprintf("%s (%s%%)", sum(x < 0.8 & x >= 0.4),
                                   round((sum(x < 0.8 & x >= 0.4)*
-                                           100/length(x)), 2))),
-    M.P=sapply(powerList, function(x)
+                                           100/length(x)), 2)), ""),
+    M.P=vapply(powerList, function(x)
                           sprintf("%s (%s%%)", sum(x < 0.4),
-                                  round((sum(x < 0.4)*100 / length(x)), 2)))
+                                  round((sum(x < 0.4)*100 / length(x)), 2)), "")
   )
   names(SummaryTable) <- c("Comp.",
                            ifelse(dataTypeSelect,

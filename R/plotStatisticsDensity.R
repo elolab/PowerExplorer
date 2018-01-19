@@ -38,7 +38,7 @@ plotStatisticsDensity <- function(simulatedData,
   entryList <- dimnames(simulatedData$nullData$testStatistics)[[1]]
   if(!entryID %in% entryList) {
     stop(sprintf("Incorrect Protein/Gene ID...\nTry something like %s",
-                 paste(entryList[1:3], collapse=", ")))
+                 paste(entryList[seq_len(3)], collapse=", ")))
   }
   x<-y<-NULL
   nullStatistics <- sqrt(simulatedData$nullData$testStatistics[entryID, ])

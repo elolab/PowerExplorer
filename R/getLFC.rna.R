@@ -10,8 +10,8 @@ getLFC.rna <- function(dds, colData) {
   numComp <- numGroup * (numGroup - 1) / 2
 
   output <- list()
-  for(g1 in 1:(numGroup-1)) {
-    for(g2 in (g1+1):numGroup) {
+  for(g1 in seq_len(numGroup-1)) {
+    for(g2 in seq(g1+1,numGroup)) {
       groupOne <- groupnames[g1]
       groupTwo <- groupnames[g2]
       res <- results(dds,contrast=c("group", groupTwo, groupOne))

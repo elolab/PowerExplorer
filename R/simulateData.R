@@ -54,13 +54,15 @@ simulateData <- function(para0.list,
   dataMatrix <- array(data=0,
                     dim=c(numEntry, 2 * simNumRep, numSim),
                     dimnames=list(entryList,
-                                    paste("Sample ID", 1:(2 * simNumRep)),
-                                    paste("Sim", 1:numSim)))
+                                    paste("Sample ID", 
+                                          seq_len(2 * simNumRep)),
+                                    paste("Sim", seq_len(numSim))))
   # Wald statistics for NB distribution / t Statistics for normal distribution
   # row: each gene / protein
   # column: each simulation
   testStatistics <- array(0, c(numEntry, numSim),
-                           dimnames=list(entryList, paste("Sim", 1:numSim)))
+                           dimnames=list(entryList, 
+                                         paste("Sim", seq_len(numSim))))
 
   # packup into lists
   nullData <- list(dataMatrix=dataMatrix,
@@ -78,7 +80,7 @@ simulateData <- function(para0.list,
 
   count <- 0
   totalIter <- numSim * numEntry
-  for(i in 1:numEntry) {
+  for(i in seq_len(numEntry)) {
     # Show Progress Details - show each distribution under simulation
     if(dataTypeSelect) {
       if(showProcess == TRUE)
@@ -96,7 +98,7 @@ simulateData <- function(para0.list,
                           round(para11[i],2)))
       }
 
-    for(j in 1:numSim) {
+    for(j in seq_len(numSim)) {
       # simulate each distribution T0 times
       # null hypohesis: two groups should follow the same distribution
       simData0 <- if(dataTypeSelect) { simCounts(simNumRep,

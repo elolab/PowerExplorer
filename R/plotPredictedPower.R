@@ -80,7 +80,8 @@ plotPredictedPower <- function(predictedPower,
                             FUN = mean)
   SummaryTable <- SummaryTable[order(SummaryTable$Group.1), ]
   repNums <- paste0("repNum:", unique(SummaryTable$Group.2))
-  SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2), SummaryTable$Group.1))
+  SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2), 
+                                       SummaryTable$Group.1))
   sumTable <- tableGrob(SummaryTable,
                         rows=row.names(SummaryTable),
                         cols=repNums,

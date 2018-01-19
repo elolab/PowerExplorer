@@ -116,7 +116,7 @@ predictSampleSizePower <- function(inputDataMatrix, groupVec,
   groups <- unique(groupVec)
   compIndex <- apply(combn(groups, 2), 2, function(x)
                                           paste(x, collapse=".vs."))
-  repIndex <- sapply(rangeSimNumRep, function(x) paste("repNum:", x))
+  repIndex <- vapply(rangeSimNumRep, function(x) paste("repNum:", x), "")
 
   predictedPower <- array(data=NA,
                        dim=c(nrow(normalized.countData),
@@ -134,12 +134,12 @@ predictSampleSizePower <- function(inputDataMatrix, groupVec,
       "\nTransformed:\t", isLogTransformed,
       "\n\n")
 
-  for(i in 1:length(rangeSimNumRep)) {
+  for(i in seq_len(length(rangeSimNumRep))) {
     simNumRep <- rangeSimNumRep[i]
     cat(sprintf('\n(%s / %s) Simulation with %s replicates per group:\n', i,
                 length(rangeSimNumRep), simNumRep))
-    for(g1 in 1:(numGroup-1)) {
-      for(g2 in (g1+1):numGroup) {
+    for(g1 in seq_len(numGroup-1)) {
+      for(g2 in seq(g1+1,numGroup)) {
         idx00 <- numRep * (g1 - 1) + 1
         idx01 <- g1*numRep
         idx10 <- numRep * (g2 - 1) + 1

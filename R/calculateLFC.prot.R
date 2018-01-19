@@ -16,8 +16,8 @@ calculateLFC.prot <- function(abundanceData,
   groupnames <- unique(groupVec)
   proteinNames <- rownames(abundanceData)
   output <- list()
-  for(g1 in 1:(numGroup-1)) {
-    for(g2 in (g1+1):numGroup) {
+  for(g1 in seq_len(numGroup-1)) {
+    for(g2 in seq(g1+1, numGroup)) {
       idx00 <- numRep * (g1 - 1) + 1
       idx01 <- g1*numRep
       idx10 <- numRep * (g2 - 1) + 1
