@@ -16,8 +16,7 @@
 #' data("exampleSimulatedData")
 #' plotStatisticsDensity(simulatedData=exampleSimulatedData,
 #'                      entryID="A3KMH1",
-#'                      alpha=0.05,
-#'                      savePlot=TRUE)
+#'                      alpha=0.05)
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 16th, Jan, 2018

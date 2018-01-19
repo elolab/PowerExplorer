@@ -28,6 +28,5 @@ protein ID name.
 data("exampleSimulatedData")
 plotStatisticsDensity(simulatedData=exampleSimulatedData,
                      entryID="A3KMH1",
-                     alpha=0.05,
-                     savePlot=TRUE)
+                     alpha=0.05)
 }
