@@ -1,7 +1,7 @@
 Package: PowerExplorer
 Title: Power Estimation Tool for RNA-Seq and proteomics data
 Version: 0.99.4
-Author: Xu Qiao [aut, cre]
+Author: Xu Qiao [aut, cre], Laura Elo [aut]
 Maintainer: Xu Qiao <xu.qiao@utu.fi> 
 URL: https://github.com/xuqiao93/PowerExplorer
 Description: Estimate and predict power among groups and multiple sample sizes 
