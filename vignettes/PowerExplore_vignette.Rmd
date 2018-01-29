@@ -1,6 +1,6 @@
 ---
 title: "PowerExplorer Manual"
-author: "Xu Qiao"
+author: "Xu Qiao, Laura Elo"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
 toc: true
@@ -20,22 +20,24 @@ knitr::opts_chunk$set(
 \newpage
 
 # Abstract
-This vignette demonstrates the applications of R package `PowerExplorer` as the power and sample size estimation tool for RNA-Seq and quantitative proteomics data. 
+This vignette demonstrates R package `PowerExplorer` as a power and sample size estimation tool for RNA-Seq and quantitative proteomics data. 
 
-`PowerExplorer` contains following main features:
+`PowerExplorer` contains the following main features:
 
-- Estimation of power based on the current setting
-- Prediction of power according to the future settings (e.g. increasing sample size)
-- Visualizations of estimation and prediction results
+- Estimation of power based on the current data
+- Prediction of power corresponding to the increased sample sizes
+- Result visualizations
 
 # Introduction
-Power and sample size estimation is still one of the important principles in designing next-generation sequencing experiments to discover differential expressions, a few methods on power estimation for RNA-Seq data have been studied, while the one specialized for proteomics data has not yet been developed. `PowerExplorer`is a power estimation and prediction tool currently applicable to RNA-Seq and quantitative proteomics experiments. The calculation procedure starts with estimating the distribution parameters of each gene or protein (following referred as entry for simplicity) accordingly, with the obtained prior distribution of each entry, a specified amount of simulations are executed to generate data (read counts for RNA-Seq and peptide abundance for proteomics) repetitively for each entry based on null and alternative hypotheses. Furthermore, the corresponding statistical tests (t-test or Wald-test) are performed and the test statistics are collected, eventually the result statistics will be summarized to calculate the statistical power.
+Power and sample size estimation is one of the important principles in designing next-generation sequencing experiments to discover differential expressions. `PowerExplorer` is a power estimation and prediction tool currently applicable to RNA-Seq and quantitative proteomics experiments. 
+
+The calculation procedure starts with estimating the distribution parameters of each gene or protein (following referred as feature for simplicity). With the obtained prior distribution of each feature, a specified amount of simulations are executed to generate data (read counts for RNA-Seq and protein abundance for proteomics) repetitively for each entry based on null and alternative hypotheses. Furthermore, the corresponding statistical tests (t-test or Wald-test) are performed and the test statistics are collected. Eventually the statistics will be summarized to calculate the statistical power.
 
 \newpage
 
 # Prepare Input Data
 
-For both RNA-Seq (gene expression levels) and quantitative proteomics (peptide abundance levels) datasets, the data matrix should be arranged as entries in rows and samples in columns, for example:
+For both RNA-Seq (gene expression levels) and quantitative proteomics (protein abundance levels) datasets, the data matrix should be arranged as features in rows and samples in columns, for example:
 ```{r showDataExample, message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")
@@ -46,17 +48,18 @@ A grouping vector indicating the sample groups to which all the samples belong s
 ```{r}
 show(exampleProteomicsData$groupVec)
 ```
+The sample groups corresponding to the data:
 ```{r}
 colnames(exampleProteomicsData$dataMatrix)
 ```
 
-Note that the grouping vector length should be equal to the column number of the data matrix, all groups conventionally should have the same number of samples, otherwise the tool will automatically even all the sample numbers to the least number to achieve equal groups.
+Note that the grouping vector length should be equal to the column number of the data matrix.
 
 \newpage
 
 # Run Estimation
 
-Here we use a randomly generated proteomics dataset `exampleProteomicsData` as an example to estimate the current power of the dataset. The input dataset is named as `dataMatrix` and the grouping vector as `groupVec`.
+Here we use a randomly generated RNASeq dataset `exampleRNASeqData` as an example to estimate the current power of the dataset. The input dataset is named as `dataMatrix` and the grouping vector as `groupVec`.
 
 To run the estimation, apart from the input, we still need to specify the following parameters:
 
@@ -64,10 +67,10 @@ To run the estimation, apart from the input, we still need to specify the follow
 - `dataType`: "RNA-Seq"; the datatype can be declared as "Proteomics" or "RNA-Seq".
 - `minLFC`: 0.5; the threshold of Log2 Fold Change, proteins with lower LFC will be discarded.
 - `alpha`: 0.05; the controlled false positive (Type I Error) rate.
-- `ST`: 50; the simulation of each protein entry will be run 50 times (ST>50 is recommended).
-- `seed`: 345; the seed of the random variables to maintain the reproducibility.
+- `ST`: 50; the simulation of each gene will be run 50 times (ST>50 is recommended).
+- `seed`: 345; optional, a seed value for the random number generator to maintain the reproducibility.
 - `showProcess`: FALSE; no detailed processes will be shown, set to TRUE if debug is needed.
-- `saveSimulatedData`: FALSE; if TRUE, save the simulated data in ~/savedData directory.
+- `saveSimulatedData`: FALSE; if TRUE, save the simulated data in ./savedData directory.
 
 The results will be summaried in barplot, boxplot and summary table.
 
@@ -106,16 +109,9 @@ The graph contains 3 plots, the `barplot` vertically shows the number of genes/p
 \newpage
 
 # Run Predictions
-With the same dataset, to run a prediction, a few more parameters are needed:
+With the same dataset, to run a prediction, a different parameter is needed:
 
-- `isLogTransformed`: FALSE; the input data is not log-transformed.
-- `dataType`: "RNA-Seq"; the datatype can be declared as "Proteomics" or "RNA-Seq".
 - `rangeSimNumRep`: the power of replicate number 5 to 20 will be predicted.
-- `alpha`: 0.05; the controlled false positive rate.
-- `ST`: 30; the statistical test and data simulation of each protein entry will be run 30 times (ST>50 is recommended).
-- `seed`: 345; specify the seed of the random variables to maintain the reproducibility.
-- `showProcess`: FALSE; no detailed processes will be shown, set to TRUE if debug is needed.
-- `saveSimulatedData`: FALSE; if TRUE, save the simulated data in root/savedData directory.
 
 Similar to the estimation process, however, the simulations will be excuted with each sample size specified in `rangeSimNumRep`. (Note: the term sample size in this vignette refers to the replicate number of each group/case)
 
@@ -157,9 +153,9 @@ data("examplePredictedPower")
 plotPredictedPower(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
 ```
 
-Lineplot is one of the optional outputs of `plotPredictedPower`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across each Log2 Fold Change segment, which resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and the colours indicate the average power of the certain sample size as shown in the legend besides the plot. In addition, a summary table below shows the average power of each comparison across the sample sizes. 
+Lineplot is one of the optional outputs of `plotPredictedPower`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across every Log2 Fold Change segment resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and each colour indicates the average power of a certain sample size (as shown in the legend besides the plot). In addition, a summary table below displays the average power of each comparison across the sample sizes. 
 
-For instance, the line plot here shows the average power of four sample sizes (5 to 30, step=5) in LFCscale of 0.5, the LFC range is between 0 and 5, each LFC segment shows the average power of the entries with the LFC in this range, here the higher LFC has higher power, additionally as the repNum (sample size) shown with different colours, the average power of each LFC range increases with the larger sample sizes. 
+For instance, the line plot here shows the average power of four sample sizes (5 to 30, with increment of 5) in LFCscale of 0.5. The LFC ranges from 0 to 5, and within each LFC segment, the graph shows the average power of the features. Here, the higher LFC shows higher power, the average power of each LFC range increases with the larger sample sizes, as expected. 
 
 ### Heatmap
 
@@ -169,5 +165,5 @@ data("examplePredictedPower")
 plotPredictedPower(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
 ```
 
-The heatmap option presents the power predictions in the similar way, vertically each heatmap shows overall LFC level of a comparison, sometimes a certain range shows blank space, since the result LFC vary in different comparison pairs. The average power of each LFC range is scaled with colours between blue and red, the middle value (0.6) is coloured as yellow, as shown in the colour bar on the right. For example, this graph shows the power increases with larger sample sizes. The same summary table is also shown on the bottom.
+The heatmap option presents the power predictions in a similar way, as previous visualizations. Each heatmap displays overall power of each LFC range and sample size. The average power of each LFC range is scaled with colours between blue and red, as shown in the colour bar on the right. For example, this graph shows the power increasing with larger sample sizes as expected. The same summary table is also shown at the bottom.
 
