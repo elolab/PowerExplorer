@@ -1,4 +1,4 @@
-# simulate read counts with given mean and dispersion (RNA-Seq)
+# simulate read counts with given mean and dispersion (RNASeq)
 # between two selected groups
 # n: number of replicates of each group
 # mu1: mean of group 1

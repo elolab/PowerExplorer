@@ -12,6 +12,6 @@
 #' @examples
 #'
 #' data(exampleEstimatedPower)
-#' plotEstimatedPower(powerList = exampleEstimatedPower)
+#' plotEstPwr(powerList = exampleEstimatedPower)
 #'
 "exampleEstimatedPower"

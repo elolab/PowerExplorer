@@ -3,13 +3,13 @@
 \docType{data}
 \name{exampleRNASeqData}
 \alias{exampleRNASeqData}
-\title{Randomly Generated RNA-Seq Dataset}
+\title{Randomly Generated RNASeq Dataset}
 \format{An list contains \code{"dataMatrix"} and \code{"groupVec"}}
 \usage{
 data(exampleRNASeqData)
 }
 \description{
-This is a randomly generated RNA-Seq dataset with
+This is a randomly generated RNASeq dataset with
 130 gene entries (rows) and 15 samples (columns) in
 3 sample groups A, B and C, the log2 fold change (LFC)
 between group B and A is specified as 1,

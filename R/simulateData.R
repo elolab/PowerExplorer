@@ -4,9 +4,7 @@
 # para1.list - a list of two theta vectors of genes in two case conditions
 # simNumRep - the number of replicates of each group for simulation
 # ST - simulation times
-# showProcess - TRUE: show the info of each simulation,
-# FALSE: only the process percentage bar
-# saveRData - whether to save the simulated data into *.RData file
+# saveResultData - whether to save the simulated data into *.RData file
 # OUTPUT
 # simulatedData - a list with two list objects: nullData and alterData both
 # contains count data, Wald statistics, mean and dispersion of each gene
@@ -14,151 +12,104 @@
 # Created: 19th, Sep, 2017
 # Last Modifed: 29th, Dec, 2017
 #' @import utils
-simulateData <- function(para0.list,
-                         para1.list,
-                         dataType=c("RNA-Seq", "Proteomics"),
+#' @import plyr
+simulateData <- function(paraMatrix,
+                         dataType=c("RNASeq", "Proteomics"),
                          simNumRep,
                          ST=100,
-                         showProcess=FALSE,
-                         saveRData=FALSE) {
+                         showSimProcess = FALSE,
+                         saveResultData=FALSE) {
 
-  # determine the dataType
-  if(identical(dataType, "RNA-Seq")) {
-    dataTypeSelect <- TRUE
-  } else if(identical(dataType, "Proteomics")) {
-    dataTypeSelect <- FALSE
-  } else{
-    stop("dataType is not specified correctly.")
-  }
-
-  # extract parameters: para0 - mean, para1 - dispersion/sd
-  para00 <- para0.list[[1]]
-  para01 <- para0.list[[2]]
-  para10 <- para1.list[[1]]
-  para11 <- para1.list[[2]]
-  if(length(para00)!=length(para10))
-    stop("Error: Unequal length between parameter vectors\n
-         Please check the input.")
-
-  numSim <- ST
-  numEntry <- length(para00)
-  entryList <- names(para00)
+  # determine dataType
+  dataTypeSelect <- switch (dataType, 
+                            RNASeq=TRUE, 
+                            Proteomics=FALSE, 
+                            stop("Incorrect dataType."))
+  
+  numEntry <- nrow(paraMatrix)
+  entryList <- row.names(paraMatrix)
   if(is.null(entryList))
-    stop("Error: unnamed mean vectors.")
-
-  # initiate data object
-  # count/abundance data
-  # D1: each gene
-  # D2: each sample
-  # D3: each simulation
-  dataMatrix <- array(data=0,
-                    dim=c(numEntry, 2 * simNumRep, numSim),
-                    dimnames=list(entryList,
-                                    paste("Sample ID", 
-                                          seq_len(2 * simNumRep)),
-                                    paste("Sim", seq_len(numSim))))
-  # Wald statistics for NB distribution / t Statistics for normal distribution
-  # row: each gene / protein
-  # column: each simulation
-  testStatistics <- array(0, c(numEntry, numSim),
-                           dimnames=list(entryList, 
-                                         paste("Sim", seq_len(numSim))))
-
-  # packup into lists
-  nullData <- list(dataMatrix=dataMatrix,
-                   testStatistics=testStatistics,
-                   parameter0=para00,
-                   parameter1=para10,
-                   T0=ST)
-
-  alterData <- list(dataMatrix=dataMatrix,
-                    testStatistics=testStatistics,
-                    parameter0=para01,
-                    parameter1=para11,
-                    T1=ST)
-  rm(dataMatrix, testStatistics)
-
-  count <- 0
-  totalIter <- numSim * numEntry
-  for(i in seq_len(numEntry)) {
-    # Show Progress Details - show each distribution under simulation
-    if(dataTypeSelect) {
-      if(showProcess == TRUE)
-        message(sprintf(">> Distributions: NB(%s, %s)\tand\t NB(%s, %s)",
-                        round(para00[i],2),
-                        round(para10[i],2),
-                        round(para01[i],2),
-                        round(para11[i],2)))
-    }else{
-        if(showProcess == TRUE)
-          message(sprintf(">> Distributions: N(%s, %s)\tand\t N(%s, %s)",
-                          round(para00[i],2),
-                          round(para10[i],2),
-                          round(para01[i],2),
-                          round(para11[i],2)))
-      }
-
-    for(j in seq_len(numSim)) {
-      # simulate each distribution T0 times
+    stop("Error: gene/protein names not found from input paramter matrix.")
+  
+  # nodes <- detectCores()
+  # cl <- makeCluster(nodes)
+  # registerDoParallel(cl)
+  simulatedData <- llply(seq_len(ST), 
+                         .progress=progress_win(title = "Simulation in progress..."), 
+                         function(x){
+      tempMatrix <- apply(paraMatrix, 1, function(x) {
+        # extract parameters: para0 - mean, para1 - dispersion/sd
+        para0_0 <- x[1]
+        para0_1 <- x[3] 
+        para1_0 <- x[2]
+        para1_1 <- x[4]
+        # Show Progress Details - show each distribution under simulation
+        
+        distName <- ifelse(dataTypeSelect,"NB","N")
+        if(showSimProcess == TRUE)
+          message(sprintf(">> Distributions: %s(%s, %s)\tand\t %s(%s, %s)",
+                          distName,
+                          round(para0_0,2),
+                          round(para1_0,2),
+                          distName,
+                          round(para0_1,2),
+                          round(para1_1,2)))
+        
+      # simulate data for each gene/protein
       # null hypohesis: two groups should follow the same distribution
-      simData0 <- if(dataTypeSelect) { simCounts(simNumRep,
-                                                 para00[i],
-                                                 para00[i],
-                                                 para10[i],
-                                                 para10[i] )
-                     } else { simAbundance( simNumRep,
-                                           para00[i],
-                                           para00[i],
-                                           para10[i],
-                                           para10[i]) }
-      simData1 <- if(dataTypeSelect) { simCounts(simNumRep,
-                                                 para00[i],
-                                                 para01[i],
-                                                 para10[i],
-                                                 para11[i] )
-                     } else { simAbundance( simNumRep,
-                                           para00[i],
-                                           para01[i],
-                                           para10[i],
-                                           para11[i]) }
-      # store simulated data in each simulation
-      nullData$dataMatrix[i,,j] <- if(dataTypeSelect) simData0$counts
-                                    else simData0$abundance
-      alterData$dataMatrix[i,,j] <- if(dataTypeSelect) simData1$counts
-                                     else simData1$abundance
-
-      # try to calculate the test statistic,
-      tmp0 <- if(dataTypeSelect) try(WaldTest(simData0))
-               else try(tTestGLM(simData0))
-      tmp1 <- if(dataTypeSelect) try(WaldTest(simData1))
-               else try(tTestGLM(simData1))
-
+      simData0 <- 
+        if(dataTypeSelect) { 
+          simCounts(simNumRep, para0_0, para0_0, para1_0, para1_0)
+        } else { 
+          simAbundance(simNumRep, para0_0, para0_0, para1_0, para1_0) }
+      simData1 <- 
+        if(dataTypeSelect) { 
+          simCounts(simNumRep, para0_0, para0_1, para1_0, para1_1)
+        } else { 
+          simAbundance(simNumRep, para0_0, para0_1, para1_0, para1_1) }
+        
+      statistics0 <- 
+        if(dataTypeSelect) try(WaldTest(simData0))
+      else try(tTestGLM(simData0))
+      
+      statistics1 <- 
+        if(dataTypeSelect) try(WaldTest(simData1))
+      else try(tTestGLM(simData1))
+        
       # if error occurs, test statistics remain as 0
-      if (!inherits(tmp0,"try-error")) {
-        nullData$testStatistics[i, j] <- tmp0
+      if (inherits(statistics0,"try-error")) {
+        statistics0 <- 0
       }
-      if (!inherits(tmp1,"try-error")) {
-        alterData$testStatistics[i, j] <- tmp1
+      if (inherits(statistics0,"try-error")) {
+        statistics1 <- 0
       }
-      # progress bar
-      if(showProcess == FALSE) {
-        count <- count + 1
-        progress(now=count, max=totalIter, word="of All Simulations Completed")
+      # try to calculate the test statistic
+      if(dataTypeSelect) {
+        data0 <- simData0$counts
+        data1 <- simData1$counts
       }
-    }
-  }
-
-  simulatedData <- list(nullData=nullData, alterData=alterData)
+      else {
+        data0 <- simData0$abundance
+        data1 <- simData1$abundance
+      }
+      
+      # collection all the simulated counts and statistics
+      res_data <- c(data0, data1, statistics0, statistics1)
+      return(res_data)
+      })
+      return(tempMatrix)
+  })
+  # stopCluster(cl)
+  # record the attributes
   attr(simulatedData, "dataType") <- dataType
-  attr(simulateData, "repNum") <- simNumRep
+  attr(simulatedData, "repNum") <- simNumRep
   # Save data for later studies
-  timestamp()
-  if(saveRData == TRUE) {
+  if(saveResultData) {
     if(!("savedRData" %in% list.files())) dir.create("savedRData")
     # simulated data name indicates the basic information
     filename.simulatedData <- RDataName(paste("simulated_Data","numRep",
                                               simNumRep, "numSim",
-                                              numSim, sep="_"))
+                                              ST, sep="_"))
     save(simulatedData, file=paste0(getwd(), "/savedRData/",
                                     filename.simulatedData))
     message(">> Data saved in directory savedRData.")

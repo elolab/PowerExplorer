@@ -87,7 +87,7 @@ The results will be summaried in barplot, boxplot and summary table.
 ```r
 library(PowerExplorer)
 data("exampleRNASeqData")
-estimatedPower <- estimateCurrentPower(inputDataMatrix = exampleRNASeqData$dataMatrix, 
+estimatedPower <- estimatePower(inputData = exampleRNASeqData$dataMatrix, 
                                        groupVec = exampleRNASeqData$groupVec, 
                                        isLogTransformed = FALSE, 
                                        dataType = "RNA-Seq", 
@@ -106,7 +106,7 @@ A part of the output should look like this:
 \newpage
 
 ## Visualization
-The estimated results can be summarized using `plotEstimatedPower`, the only input needed is the `estimatedPower`, which should be the estimated power object returned from  `estimateCurrentPower`.
+The estimated results can be summarized using `plotEstPwr`, the only input needed is the `estimatedPower`, which should be the estimated power object returned from  `estimatePower`.
 
 ![](C:\Users\xuqia\AppData\Local\Temp\RtmpO6V1F1\preview-1988b91586.dir\PowerExplore_vignette_files/figure-latex/plot estimated power-1.pdf)<!-- --> 
 
@@ -131,7 +131,7 @@ A part of the output should look like this:
 
 ## Visualization
 
-The predicted results can be summaried using `plotPredictedPower`. The input should be the predicted power object returned from `predictSampleSizePower`, the summary can be optionally visualized by setting the following parameters:
+The predicted results can be summaried using `plotPredPwr`. The input should be the predicted power object returned from `predictPower`, the summary can be optionally visualized by setting the following parameters:
 
 - `plotType`: power-samplesize-foldchange relationship can be visualized optionally between "lineplot" and "heatmap".
 - `minLFC` and `maxLFC`: to observe power in a specific range of LFC
@@ -143,12 +143,12 @@ Lineplot (LFCscale = 0.5):
 
 ```r
 data("examplePredictedPower")
-plotPredictedPower(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
+plotPredPwr(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
 ```
 
 ![](C:\Users\xuqia\AppData\Local\Temp\RtmpO6V1F1\preview-1988b91586.dir\PowerExplore_vignette_files/figure-latex/LinePlot-1.pdf)<!-- --> 
 
-Lineplot is one of the optional outputs of `plotPredictedPower`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across every Log2 Fold Change segment resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and each colour indicates the average power of a certain sample size (as shown in the legend besides the plot). In addition, a summary table below displays the average power of each comparison across the sample sizes. 
+Lineplot is one of the optional outputs of `plotPredPwr`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across every Log2 Fold Change segment resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and each colour indicates the average power of a certain sample size (as shown in the legend besides the plot). In addition, a summary table below displays the average power of each comparison across the sample sizes. 
 
 For instance, the line plot here shows the average power of four sample sizes (5 to 30, with increment of 5) in LFCscale of 0.5. The LFC ranges from 0 to 5, and within each LFC segment, the graph shows the average power of the features. Here, the higher LFC shows higher power, the average power of each LFC range increases with the larger sample sizes, as expected. 
 
@@ -158,7 +158,7 @@ Heatmap (LFCscale = 0.5):
 
 ```r
 data("examplePredictedPower")
-plotPredictedPower(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
+plotPredPwr(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
 ```
 
 ![](C:\Users\xuqia\AppData\Local\Temp\RtmpO6V1F1\preview-1988b91586.dir\PowerExplore_vignette_files/figure-latex/Heatmap-1.pdf)<!-- --> 

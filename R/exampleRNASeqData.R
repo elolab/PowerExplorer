@@ -1,6 +1,6 @@
-#' @title Randomly Generated RNA-Seq Dataset
+#' @title Randomly Generated RNASeq Dataset
 #'
-#' @description This is a randomly generated RNA-Seq dataset with
+#' @description This is a randomly generated RNASeq dataset with
 #' 130 gene entries (rows) and 15 samples (columns) in
 #' 3 sample groups A, B and C, the log2 fold change (LFC)
 #' between group B and A is specified as 1,

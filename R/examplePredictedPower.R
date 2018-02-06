@@ -12,7 +12,7 @@
 #'
 #' @examples
 #'data(examplePredictedPower)
-#'plotPredictedPower(examplePredictedPower,
+#'plotPredPwr(examplePredictedPower,
 #'                   plotType="lineplot",
 #'                   minLFC=0, maxLFC=4,
 #'                   LFCscale=0.5)

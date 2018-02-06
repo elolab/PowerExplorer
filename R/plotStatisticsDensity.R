@@ -25,7 +25,7 @@ plotStatisticsDensity <- function(simulatedData,
                                   entryID,
                                   alpha=0.05) {
   attrs <- attributes(simulatedData)
-  if(attrs$dataType == "RNA-Seq") {
+  if(attrs$dataType == "RNASeq") {
     dataTypeSelect <- TRUE
   }
   else if(attrs$dataType == "Proteomics") {
