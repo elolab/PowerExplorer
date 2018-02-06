@@ -2,6 +2,8 @@
 # Author: Xu Qiao
 # Created: 19th, Dec, 2017
 # Last Modifed: 29th, Dec, 2017
+#' @import DESeq2
+#' 
 estimationByDESeq2 <- function(dataMatrix, colData) {
   # initialize DESeqDataSet
   dds <- DESeqDataSetFromMatrix(countData=dataMatrix,
@@ -9,7 +11,7 @@ estimationByDESeq2 <- function(dataMatrix, colData) {
                                 design=~ group)
 
   # Start DESeq dispersion estimations
-  cat("[!]START ESTIMATION", "\nEstimating NB parameters by DESeq2...\n")
+  cat("\nEstimating NB parameters by DESeq2...\n")
   dds <- DESeq(dds,
                fitType="parametric",
                test="Wald",
@@ -21,10 +23,10 @@ estimationByDESeq2 <- function(dataMatrix, colData) {
   dispersionVec <- dispersions(dds)
   names(dispersionVec) <-  rownames(dataMatrix)
   # retrieve fold changes
-  LFCList <- getLFC.rna(dds, colData)
-  output <- list(dispersionVec=dispersionVec, LFCList=LFCList)
+  LFCRes <- getLFC.rna(dds)
+  output <- list(dispersion=dispersionVec, LFCRes=LFCRes)
   attr(output, "meanDispFunc") <- dispersionFunction(dds)
   return(list(dispersionVec=dispersionVec,
-              LFCList=LFCList,
+              LFCRes=LFCRes,
               normCounts=counts(dds, normalized=TRUE)))
 }

@@ -1,8 +1,8 @@
 Package: PowerExplorer
 Title: Power Estimation Tool for RNA-Seq and proteomics data
 Version: 0.99.6
-Author: Xu Qiao [aut, cre], Laura Elo [aut]
-Maintainer: Xu Qiao <xu.qiao@utu.fi> 
+Authors@R: c(person("Xu", "Qiao", role=c("aut","cre"), email="xu.qiao@utu.fi"),
+             person("Laura", "Elo", role=c("cph"), email="laura.elo@utu.fi"))
 URL: https://github.com/xuqiao93/PowerExplorer
 Description: Estimate and predict power among groups and multiple sample sizes 
     with simulated data, the simulations are operated based on distribution parameters 
@@ -13,16 +13,17 @@ biocViews:
     DifferentialExpression, 
     MultipleComparison
 Depends: 
-    R (>= 3.5.0), 
+    R (>= 3.4.0), 
     DESeq2, 
     ggplot2, 
-    data.table
+    SummarizedExperiment
 Imports: 
     stats, 
     utils, 
     methods, 
     gridExtra, 
-    MASS 
+    MASS,
+    data.table,
 Suggests: 
     knitr, 
     rmarkdown

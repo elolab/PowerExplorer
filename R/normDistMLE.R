@@ -1,9 +1,10 @@
-#' @import stats
-# Author: Xu Qiao
+
+# Author: Xu Qiao 
 # Created: 5th, Dec, 2017
 # Last Modifed: 19th, Dec, 2017
 # formula reference:
 # https://www.statlect.com/fundamentals-of-statistics/
+#' @importFrom stats optim
 normDistMLE <- function(x) {
   logLikeFunNorm <- function(paraVec) {
     # Log of likelihood of a normal distribution

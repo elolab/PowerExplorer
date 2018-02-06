@@ -7,7 +7,7 @@
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 28th, Dec, 2017
-#' @import MASS
+#' @importFrom MASS glm.nb
 WaldTest <- function(nbdata, formula=counts ~ group) {
   # fit a NB generalized linear model
   tmp <- suppressWarnings(glm.nb(data=nbdata, formula=formula))

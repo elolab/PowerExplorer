@@ -74,34 +74,27 @@ To run the estimation, apart from the input, we still need to specify the follow
 
 The results will be summaried in barplot, boxplot and summary table.
 
-```{r estimation run, fig.keep='none', message=FALSE, warning=FALSE, results='hide'}
+```{r estimation run, fig.keep='none', message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")
-estimatedPower <- estimateCurrentPower(inputDataMatrix = exampleRNASeqData$dataMatrix, 
-                                       groupVec = exampleRNASeqData$groupVec, 
-                                       isLogTransformed = FALSE, 
-                                       dataType = "RNA-Seq", 
-                                       minLFC = 0.5, 
-                                       alpha = 0.05, 
-                                       ST = 50, 
-                                       seed = 345, 
-                                       showProcess = FALSE, 
-                                       saveSimulatedData = FALSE)
+estimatedPower <- estimatePower(inputData = exampleRNASeqData$dataMatrix, 
+                               groupVec = exampleRNASeqData$groupVec, 
+                               isLogTransformed = FALSE, 
+                               dataType = "RNASeq", 
+                               minLFC = 0.5, 
+                               alpha = 0.05, 
+                               ST = 50, 
+                               seed = 345)
 ```
 
-A part of the output should look like this:
-```{r echo=FALSE, out.width = "90%"}
-imgpath <- paste0(getwd(), "/outputExample.png")
-knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
-```
 
 \newpage
 
 ## Visualization
-The estimated results can be summarized using `plotEstimatedPower`, the only input needed is the `estimatedPower`, which should be the estimated power object returned from  `estimateCurrentPower`.
+The estimated results can be summarized using `plotEstPwr`, the only input needed is the `estimatedPower`, which should be the estimated power object returned from  `estimatePower`.
 
 ```{r plot estimated power, echo = FALSE}
-plotEstimatedPower(powerList = estimatedPower)
+plotEstPwr(estimatedPower = estimatedPower)
 ```
 
 The graph contains 3 plots, the `barplot` vertically shows the number of genes/proteins above the minLFC threshold, columns indicates the comparison pairs, each column presents the proportions of three power levels in three colours as indicated in the legend `power.level`; The boxplot shows the overall power distribution of each comparsion; And the summary table summarize the power in a numerical way with the same information shown in the previous two plots.
@@ -117,7 +110,7 @@ Similar to the estimation process, however, the simulations will be excuted with
 
 ```{r prediction run, eval=FALSE, include=FALSE, echo=TRUE}
 data("exampleRNASeqData")
-predictedPower <- predictSampleSizePower(inputDataMatrix = exampleRNASeqData$dataMatrix,
+predictedPower <- predictPower(inputData = exampleRNASeqData$dataMatrix,
                                          groupVec = exampleRNASeqData$groupVec,
                                          isLogTransformed = FALSE,
                                          dataType = "RNA-Seq",
@@ -139,7 +132,7 @@ knitr::include_graphics(imgpath, auto_pdf = TRUE, dpi = NULL)
 
 ## Visualization
 
-The predicted results can be summaried using `plotPredictedPower`. The input should be the predicted power object returned from `predictSampleSizePower`, the summary can be optionally visualized by setting the following parameters:
+The predicted results can be summaried using `plotPredPwr`. The input should be the predicted power object returned from `predictPower`, the summary can be optionally visualized by setting the following parameters:
 
 - `plotType`: power-samplesize-foldchange relationship can be visualized optionally between "lineplot" and "heatmap".
 - `minLFC` and `maxLFC`: to observe power in a specific range of LFC
@@ -150,10 +143,10 @@ The predicted results can be summaried using `plotPredictedPower`. The input sho
 Lineplot (LFCscale = 0.5):
 ```{r LinePlot}
 data("examplePredictedPower")
-plotPredictedPower(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
+plotPredPwr(examplePredictedPower, plotType = "lineplot", LFCscale = 0.5)
 ```
 
-Lineplot is one of the optional outputs of `plotPredictedPower`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across every Log2 Fold Change segment resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and each colour indicates the average power of a certain sample size (as shown in the legend besides the plot). In addition, a summary table below displays the average power of each comparison across the sample sizes. 
+Lineplot is one of the optional outputs of `plotPredPwr`, the output contains a lineplot and a summary table. For each comparison, the lineplot shows the power tendency across every Log2 Fold Change segment resulted from a complete LFC list divided by a specified `LFCscale`. Each dot on the lines stands for the average power (y-axis) of the genes within the LFC range (x-axis), and each colour indicates the average power of a certain sample size (as shown in the legend besides the plot). In addition, a summary table below displays the average power of each comparison across the sample sizes. 
 
 For instance, the line plot here shows the average power of four sample sizes (5 to 30, with increment of 5) in LFCscale of 0.5. The LFC ranges from 0 to 5, and within each LFC segment, the graph shows the average power of the features. Here, the higher LFC shows higher power, the average power of each LFC range increases with the larger sample sizes, as expected. 
 
@@ -162,7 +155,7 @@ For instance, the line plot here shows the average power of four sample sizes (5
 Heatmap (LFCscale = 0.5):
 ```{r Heatmap}
 data("examplePredictedPower")
-plotPredictedPower(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
+plotPredPwr(examplePredictedPower, plotType = "heatmap", LFCscale = 0.5)
 ```
 
 The heatmap option presents the power predictions in a similar way, as previous visualizations. Each heatmap displays overall power of each LFC range and sample size. The average power of each LFC range is scaled with colours between blue and red, as shown in the colour bar on the right. For example, this graph shows the power increasing with larger sample sizes as expected. The same summary table is also shown at the bottom.

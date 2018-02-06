@@ -15,32 +15,32 @@ calculateLFC.prot <- function(abundanceData,
   abundanceData <- na.omit(abundanceData)
   groupnames <- unique(groupVec)
   proteinNames <- rownames(abundanceData)
-  output <- list()
-  for(g1 in seq_len(numGroup-1)) {
-    for(g2 in seq(g1+1, numGroup)) {
-      idx00 <- numRep * (g1 - 1) + 1
-      idx01 <- g1*numRep
-      idx10 <- numRep * (g2 - 1) + 1
-      idx11 <- g2*numRep
-
-      # extract data from each group
-      data.case.g1 <- abundanceData[, idx00:idx01]
-      data.case.g2 <- abundanceData[, idx10:idx11]
-      # log-transform the data if not isLogTransformed
-      if(isLogTransformed == FALSE) {
-        data.case.g1 <- log2(data.case.g1 +1)
-        data.case.g2 <- log2(data.case.g2 +1)
-      }
-
-      mean.g1 <- rowMeans(data.case.g1, na.rm = TRUE) # means of group 1
-      mean.g2 <- rowMeans(data.case.g2, na.rm = TRUE) # means of group 2
-      # names
-      groupOne <- groupnames[g1]
-      groupTwo <- groupnames[g2]
-      idx <- paste0(groupOne, ".vs.", groupTwo)
-      lfc <- mean.g2 - mean.g1
-      output[[idx]] <- lfc[proteinNames]
+  
+  comp_index <- combn(seq_len(numGroup), 2)
+  colnames(comp_index) <- apply(comp_index, 2, function(x) paste0(groupnames[x[1]], ".vs.",groupnames[x[2]]))
+  res <- apply(comp_index, 2, function(x){
+    g1 <- x[1]; g2 <- x[2]
+    idx00 <- numRep * (g1 - 1) + 1
+    idx01 <- g1*numRep
+    idx10 <- numRep * (g2 - 1) + 1
+    idx11 <- g2*numRep
+    
+    # extract data from each group
+    data.case.g1 <- abundanceData[, idx00:idx01]
+    data.case.g2 <- abundanceData[, idx10:idx11]
+    # log-transform the data if not isLogTransformed
+    if(isLogTransformed == FALSE) {
+      data.case.g1 <- log2(data.case.g1 +1)
+      data.case.g2 <- log2(data.case.g2 +1)
     }
-  }
-  output
+    mean.g1 <- rowMeans(data.case.g1, na.rm = TRUE) # means of group 1
+    mean.g2 <- rowMeans(data.case.g2, na.rm = TRUE) # means of group 2
+    # names
+    # groupOne <- groupnames[g1]
+    # groupTwo <- groupnames[g2]
+    # idx <- paste0(groupOne, ".vs.", groupTwo)
+    lfc <- mean.g2 - mean.g1
+    return(lfc)
+  })
+  return(res)
 }
