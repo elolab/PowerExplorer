@@ -12,39 +12,41 @@
 # Created: 19th, Sep, 2017
 # Last Modifed: 29th, Dec, 2017
 #' @import utils
-#' @import plyr
-simulateData <- function(paraMatrix,
-                         dataType=c("RNASeq", "Proteomics"),
-                         simNumRep,
-                         ST=100,
-                         showSimProcess = FALSE,
-                         saveResultData=FALSE) {
+#' @importFrom plyr llply progress_win
+  simulateData <- function(paraMatrix,
+                           dataType=c("RNASeq", "Proteomics"),
+                           simNumRep,
+                           ST=100,
+                           minLFC = 0,
+                           showSimProcess = FALSE,
+                           saveResultData=FALSE){
 
   # determine dataType
-  dataTypeSelect <- switch (dataType, 
-                            RNASeq=TRUE, 
-                            Proteomics=FALSE, 
+  dataTypeSelect <- switch (dataType,
+                            RNASeq=TRUE,
+                            Proteomics=FALSE,
                             stop("Incorrect dataType."))
-  
+
   numEntry <- nrow(paraMatrix)
   entryList <- row.names(paraMatrix)
   if(is.null(entryList))
     stop("Error: gene/protein names not found from input paramter matrix.")
-  
+
   # nodes <- detectCores()
   # cl <- makeCluster(nodes)
   # registerDoParallel(cl)
-  simulatedData <- llply(seq_len(ST), 
-                         .progress=progress_win(title = "Simulation in progress..."), 
+  simulatedData <- llply(seq_len(ST),
+                         .progress=progress_win(
+                           title = "Simulation in progress..."), 
                          function(x){
       tempMatrix <- apply(paraMatrix, 1, function(x) {
         # extract parameters: para0 - mean, para1 - dispersion/sd
         para0_0 <- x[1]
-        para0_1 <- x[3] 
+        para0_1 <- x[3]
         para1_0 <- x[2]
         para1_1 <- x[4]
         # Show Progress Details - show each distribution under simulation
-        
+
         distName <- ifelse(dataTypeSelect,"NB","N")
         if(showSimProcess == TRUE)
           message(sprintf(">> Distributions: %s(%s, %s)\tand\t %s(%s, %s)",
@@ -54,28 +56,28 @@ simulateData <- function(paraMatrix,
                           distName,
                           round(para0_1,2),
                           round(para1_1,2)))
-        
+
       # simulate data for each gene/protein
       # null hypohesis: two groups should follow the same distribution
-      simData0 <- 
-        if(dataTypeSelect) { 
+      simData0 <-
+        if(dataTypeSelect) {
           simCounts(simNumRep, para0_0, para0_0, para1_0, para1_0)
-        } else { 
+        } else {
           simAbundance(simNumRep, para0_0, para0_0, para1_0, para1_0) }
-      simData1 <- 
-        if(dataTypeSelect) { 
+      simData1 <-
+        if(dataTypeSelect) {
           simCounts(simNumRep, para0_0, para0_1, para1_0, para1_1)
-        } else { 
+        } else {
           simAbundance(simNumRep, para0_0, para0_1, para1_0, para1_1) }
-        
-      statistics0 <- 
+
+      statistics0 <-
         if(dataTypeSelect) try(WaldTest(simData0))
       else try(tTestGLM(simData0))
-      
-      statistics1 <- 
+
+      statistics1 <-
         if(dataTypeSelect) try(WaldTest(simData1))
       else try(tTestGLM(simData1))
-        
+
       # if error occurs, test statistics remain as 0
       if (inherits(statistics0,"try-error")) {
         statistics0 <- 0
@@ -92,7 +94,7 @@ simulateData <- function(paraMatrix,
         data0 <- simData0$abundance
         data1 <- simData1$abundance
       }
-      
+
       # collection all the simulated counts and statistics
       res_data <- c(data0, data1, statistics0, statistics1)
       return(res_data)

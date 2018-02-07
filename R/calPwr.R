@@ -2,13 +2,15 @@
 # INPUT
 # simData: the simulated data under null and alternative hypothesis
 # alpha: desired false positive rate control
-# saveResultData: whether to save the estimated power of each entry in *.RData file
+# saveResultData: whether to save the estimated power of each 
+# entry in *.RData file
 # OUTPUT
 # powerEst: a entry-named vector of power values (rounded as xx.xx)
 # cutoffStatistics will be saved into as cutoffStats_[time].RData
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 19th, Dec, 2017
+#' @importFrom stats quantile
 calPwr <- function(simData,
                            alpha=0.05,
                            dataType=c("RNASeq", "Proteomics"),

@@ -16,7 +16,9 @@ Depends:
     R (>= 3.4.0), 
     DESeq2, 
     ggplot2, 
-    SummarizedExperiment
+    SummarizedExperiment,
+    Biobase,
+    S4Vectors
 Imports: 
     stats, 
     utils, 
@@ -24,6 +26,7 @@ Imports:
     gridExtra, 
     MASS,
     data.table,
+    plyr
 Suggests: 
     knitr, 
     rmarkdown

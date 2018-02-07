@@ -10,6 +10,7 @@
 # Created: 22nd, Sep, 2017
 # Last Modification: 3rd, Jan, 2018
 #' @importFrom  stats rnorm
+#' 
 simAbundance <- function(n, mu1, mu2, sd1, sd2) {
   if(mu1 < 1) mu1 <- 1 # mean count lower than 1 is not allowed
   if(mu2 < 1) mu2 <- 1

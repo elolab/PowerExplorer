@@ -6,6 +6,7 @@
 #' 
 estimationByDESeq2 <- function(dataMatrix, colData) {
   # initialize DESeqDataSet
+  dataMatrix[is.na(dataMatrix)] <- 0
   dds <- DESeqDataSetFromMatrix(countData=dataMatrix,
                                 colData=colData,
                                 design=~ group)

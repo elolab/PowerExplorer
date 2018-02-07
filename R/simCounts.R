@@ -9,7 +9,7 @@
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 20th, Dec, 2017
-#'@importFrom stats rnbinom
+#'@importFrom stats rnbinom var
 simCounts <- function(n, mu1, mu2, theta1, theta2) {
   if(mu1 < 1) mu1 <- 1 # mean count lower than 1 is not allowed
   if(mu2 < 1) mu2 <- 1

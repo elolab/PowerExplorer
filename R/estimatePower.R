@@ -28,6 +28,8 @@
 #' @import utils
 #' @import methods
 #' @import SummarizedExperiment
+#' @importFrom Biobase exprs
+#' @importFrom S4Vectors DataFrame
 #' @examples
 #' # Example 1: a random generated Proteomics dataset (10 DE, 100 non-DE)
 #' # Note: Simulation times(ST) is specified as 10 for shorter example runtime
@@ -40,15 +42,15 @@
 #' resObject <- estimatePower(dataMatrix, groupVec,
 #'                            dataType="Proteomics",
 #'                            isLogTransformed=FALSE,
-#'                            minLFC=0, alpha=0.05, ST=10, seed=123,
-#'                            saveResultData=FALSE)
+#'                            minLFC=0, alpha=0.05, 
+#'                            ST=10, seed=123)
 #'
 #' # Run estimation with minLFC=1 (Fold Change=2)
 #' resObject2 <- estimatePower(dataMatrix, groupVec,
 #'                            dataType="Proteomics",
 #'                            isLogTransformed=FALSE,
-#'                            minLFC=1, alpha=0.05, ST=10, seed=123,
-#'                            saveResultData=FALSE)
+#'                            minLFC=1, alpha=0.05, 
+#'                            ST=10, seed=123)
 #'
 #'# Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
 #' # Note: Simulation times(ST) is specified as 10 for shorter example runtime
@@ -61,20 +63,20 @@
 #' resObject <- estimatePower(dataMatrix, groupVec,
 #'                              dataType="RNASeq",
 #'                              isLogTransformed=FALSE,
-#'                              minLFC=0, alpha=0.05, ST=10, seed=123,
-#'                              saveResultData=FALSE)
+#'                              minLFC=0, alpha=0.05, 
+#'                              ST=10, seed=123)
 #'
 #' # Run estimation with minLFC=1 (Fold Change=2)
 #' resObject2 <- estimatePower(dataMatrix, groupVec,
 #'                             dataType="RNASeq",
 #'                             isLogTransformed=FALSE,
-#'                             minLFC=1, alpha=0.05, ST=10, seed=123,
-#'                             saveResultData=FALSE)
+#'                             minLFC=1, alpha=0.05, 
+#'                             ST=10, seed=123)
 #'
 #'
 # Author: Xu Qiao
 # Created: 22nd, Sep, 2017
-# Last Modifed: 9th, Jan, 2018
+# Last Modifed: 9th, Feb, 2018
 
 estimatePower <- function(inputObject, groupVec,
                                  isLogTransformed=FALSE,
@@ -82,7 +84,8 @@ estimatePower <- function(inputObject, groupVec,
                                  minLFC=0.5, alpha=0.05, ST=100, seed=123,
                                  showSimProcess=FALSE,
                                  saveResultData=FALSE) {
-  if(missing(dataType) & length(dataType)!=1) stop("Please tell the data type of the input.")
+  if(missing(dataType) & length(dataType)!=1) 
+    stop("Please tell the data type of the input.")
   # determine dataType
   dataTypeSelect <- switch (dataType,
                             RNASeq=TRUE,
@@ -92,12 +95,12 @@ estimatePower <- function(inputObject, groupVec,
   dataMatrix <- switch (class(inputObject),
                         RangedSummarizedExperiment = assays(inputObject)$counts,
                         SummarizedExperiment = assays(inputObject)$counts,
-                        ExpressionSet = exprs(inputObject),
+                        ExpressionSet = Biobase::exprs(inputObject),
                         PEObject = {
-                          if(dataType != PEObject@dataType)
+                          if(dataType != inputObject@dataType)
                             stop("Incorrect data type.")
-                          assays(inputObject)},
-                        inputObject
+                          assays(inputObject)$counts},
+                        as.matrix(inputObject)
   )
   # determine input group and replicate numbers
   groupVec <- as.character(groupVec) # unfactorize the group vector
@@ -127,6 +130,7 @@ estimatePower <- function(inputObject, groupVec,
     simData <- simulateData(eachParaMatrix,
                             dataType=dataType,
                             simNumRep=numRep,
+                            minLFC=minLFC,
                             ST=ST,
                             showSimProcess=showSimProcess,
                             saveResultData=saveResultData)
@@ -150,22 +154,22 @@ switch (class(inputObject),
     {
       SE <- SummarizedExperiment(
         assays=list(counts=dataMatrix),
-        rowData=DataFrame(row.names=rownames(dataMatrix)))
+        rowData=S4Vectors::DataFrame(row.names=rownames(dataMatrix)))
       colData(SE) <- 
-        DataFrame(sampleName=factor(colnames(dataMatrix)),
+        S4Vectors::DataFrame(sampleName=factor(colnames(dataMatrix)),
                  group=factor(groupVec),
                  row.names = colnames(dataMatrix))
     }
   )
   
   resObject <- new("PEObject", SE, groupVec=groupVec,
-                  LFCRes=DataFrame(attributes(paraMatrices)$LFCRes),
+                  LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes),
                   minLFC=minLFC,
                   alpha=alpha,
                   ST=ST,
                   dataType=dataType,
                   simRepNumber=numRep,
-                  estPwr=DataFrame(estimatedPower))
+                  estPwr=S4Vectors::DataFrame(estimatedPower))
   
   if(saveResultData){
     if(!("savedRData" %in% list.files())) dir.create("savedRData")

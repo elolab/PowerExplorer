@@ -1,4 +1,5 @@
 # extract distribution parameters from input data
+#' @importFrom stats quantile
 extParaMatrix <- function(dataMatrix, groupVec,
                           isLogTransformed=FALSE,
                           dataType=c("RNASeq","Proteomics"),
@@ -21,10 +22,12 @@ extParaMatrix <- function(dataMatrix, groupVec,
   # remove entries with too many zero counts
   numEntries.old <- nrow(dataMatrix)
   is.na(dataMatrix) <- !dataMatrix
-  dataMatrix <- na.omit(dataMatrix)
+  #dataMatrix <- na.omit(dataMatrix)
+  exZero <- apply(dataMatrix, 1, function(x) sum(is.na(x)) >= numRep)
+  dataMatrix <- dataMatrix[!exZero, ]
   cat(sprintf("%s of %s entries are filtered due to excessive zero counts\n",
               numEntries.old - nrow(dataMatrix), numEntries.old))
-
+  cat("Estimating distribution parameters...\n")
   if(dataTypeSelect) {
     # construct a colData for DESeq2
     colData <- data.frame(group=groupVec, row.names=colnames(dataMatrix))
@@ -45,7 +48,8 @@ extParaMatrix <- function(dataMatrix, groupVec,
   groups <- unique(groupVec)
   comp_index <- combn(seq_len(numGroup), 2)
   comp_index <- split(comp_index, col(comp_index))
-  names(comp_index) <- lapply(comp_index, function(x) paste0(groups[x[1]], ".vs.",groups[x[2]]))
+  names(comp_index) <- lapply(comp_index, function(x)
+                        paste0(groups[x[1]], ".vs.",groups[x[2]]))
   paraMatrices <- lapply(comp_index, function(x){
     g1 <- x[1]; g2 <- x[2]
     idx00 <- numRep * (g1 - 1) + 1

@@ -8,13 +8,15 @@
 #' directly without further transformation
 #' @param dataType "RNASeq" or "Proteomics" indictes the data type of
 #' the input data matrix.
+#' @param minLFC LFC threshold
 #' @param rangeSimNumRep a vector of sample sizes under which power
 #' will be estimated
 #' @param alpha controlled false positive rate.
 #' @param ST the number of simulations of abundance data generation and
 #' repeated times of statistical test for each protein (>=100 recommended).
 #' @param seed an integer seed for the random number generator.
-#' @param showProcess logical; if \code{TRUE}, show the detailed information of
+#' @param showSimProcess logical; if \code{TRUE}, 
+#' show the detailed information of
 #' each simulation, used for debugging only.
 #' @param saveResultData logical; if \code{TRUE}, save the simulated data
 #' into RData with name pattern
@@ -25,6 +27,8 @@
 #' actual data
 #' @import utils
 #' @import SummarizedExperiment
+#' @importFrom Biobase exprs
+#' @importFrom S4Vectors DataFrame
 #' @export
 #' @examples
 #' # Example 1: a random generated Proteomics dataset (10 DE, 100 non-DE)
@@ -36,13 +40,11 @@
 #' # Note: Simulation times(ST) is specified as 5 for shorter example runtime
 #' #       For better performence, ST > 50 is recommended
 #' predictedPower <- predictPower(dataMatrix, groupVec,
-#'                                          isLogTransformed=FALSE,
-#'                                          dataType="Proteomics",
-#'                                          minLFC=0,
-#'                                          rangeSimNumRep=c(5, 10, 15),
-#'                                          alpha=0.05, ST=5, seed=123,
-#'                                          showSimProcess=FALSE,
-#'                                          saveResultData=FALSE)
+#'                                isLogTransformed=FALSE,
+#'                                dataType="Proteomics",
+#'                                minLFC=0,
+#'                                rangeSimNumRep=c(5, 10, 15),
+#'                                alpha=0.05, ST=5, seed=123)
 
 #' # Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
 #' data(exampleRNASeqData)
@@ -53,16 +55,14 @@
 #' # Note: Simulation times(ST) is specified as 5 for shorter example runtime
 #' #       For better performence, ST > 50 is recommended
 #' predictedPower <- predictPower(dataMatrix, groupVec,
-#'                                          isLogTransformed=FALSE,
-#'                                          dataType="RNASeq",
-#'                                          minLFC=0,
-#'                                          rangeSimNumRep=c(5, 10, 15),
-#'                                          alpha=0.05, ST=5, seed=123,
-#'                                          showSimProcess=FALSE,
-#'                                          saveResultData=FALSE)
+#'                                isLogTransformed=FALSE,
+#'                                dataType="RNASeq",
+#'                                minLFC=0,
+#'                                rangeSimNumRep=c(5, 10, 15),
+#'                                alpha=0.05, ST=5, seed=123)
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
-# Last Modifed: 10th, Jan, 2018
+# Last Modifed: 18th, Feb, 2018
 
 predictPower <- function(inputObject, groupVec,
                                    isLogTransformed=FALSE,
@@ -70,17 +70,17 @@ predictPower <- function(inputObject, groupVec,
                                    minLFC = 0.5,
                                    rangeSimNumRep=NA,
                                    alpha=0.05, ST=100, seed=123,
-                                   showSimProcess=FALSE, 
+                                   showSimProcess=FALSE,
                                    saveResultData=FALSE) {
   dataMatrix <- switch (class(inputObject),
                         RangedSummarizedExperiment = assays(inputObject)$counts,
                         SummarizedExperiment = assays(inputObject)$counts,
-                        ExpressionSet = exprs(inputObject),
+                        ExpressionSet = Biobase::exprs(inputObject),
                         PEObject = {
                           if(dataType != inputObject@dataType)
                             stop("Incorrect data type.")
                           assays(inputObject)$counts},
-                        inputObject
+                        as.matrix(inputObject)
   )
   # determine dataType
   dataTypeSelect <- switch (dataType,
@@ -99,18 +99,22 @@ predictPower <- function(inputObject, groupVec,
       "\nTransformed:\t", isLogTransformed,
       "\n\n")
   # Simulation procedure
-  paraMatrices <- extParaMatrix(dataMatrix = dataMatrix, 
-                                groupVec = groupVec, 
-                                isLogTransformed = isLogTransformed, 
-                                dataType = dataType, 
-                                minLFC = minLFC, 
+  paraMatrices <- extParaMatrix(dataMatrix = dataMatrix,
+                                groupVec = groupVec,
+                                isLogTransformed = isLogTransformed,
+                                dataType = dataType,
+                                minLFC = minLFC,
                                 seed = seed)
-  
+
   predictedPower <- lapply(rangeSimNumRep, function(eachRepNum) {
-    cat(sprintf('\n##--Simulation with %s replicates per group--##\n', eachRepNum))
-    
+    cat(
+      sprintf(
+        '\n##--Simulation with %s replicates per group--##\n', eachRepNum))
+
     eachRepPower <- lapply(paraMatrices, function(eachParaMatrix) {
-      cat(sprintf("\n[repNum:%s] Simulation in process, it may take a few minutes...\n", 
+      cat(
+        sprintf(
+          "\n[repNum:%s] Simulation in process, it may take a few minutes...\n",
                   eachRepNum))
       comp_idx <- attributes(eachParaMatrix)$Comparison
       # start simulation and power estimation
@@ -119,10 +123,11 @@ predictPower <- function(inputObject, groupVec,
       simData <- simulateData(eachParaMatrix,
                               dataType=dataType,
                               simNumRep=eachRepNum,
+                              minLFC=minLFC,
                               ST=ST,
                               showSimProcess=showSimProcess,
                               saveResultData=saveResultData)
-      
+
       powerest <- calPwr(simData, alpha=0.05,
                          dataType=dataType,
                          saveResultData=FALSE,
@@ -135,7 +140,7 @@ predictPower <- function(inputObject, groupVec,
     return(eachRepPower)
   })
   names(predictedPower) <- paste0("repNum: ", rangeSimNumRep)
-  
+
   switch (class(inputObject),
           SummarizedExperiment = {
             SE <- inputObject},
@@ -145,16 +150,16 @@ predictPower <- function(inputObject, groupVec,
           {
             SE <- SummarizedExperiment(
               assays=list(counts=dataMatrix),
-              rowData=DataFrame(row.names=rownames(dataMatrix)))
-            colData(SE) <- 
-              DataFrame(sampleName=factor(colnames(dataMatrix)),
+              rowData=S4Vectors::DataFrame(row.names=rownames(dataMatrix)))
+            colData(SE) <-
+              S4Vectors::DataFrame(sampleName=factor(colnames(dataMatrix)),
                         group=factor(groupVec),
                         row.names = colnames(dataMatrix))
           }
   )
-  
+
   resObject <- new("PEObject", SE, groupVec=groupVec,
-                   LFCRes=DataFrame(attributes(paraMatrices)$LFCRes),
+                   LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes),
                    minLFC=minLFC,
                    alpha=alpha,
                    ST=ST,
@@ -170,7 +175,7 @@ predictPower <- function(inputObject, groupVec,
     save(resObject, file=paste0(savedRDataDir, filename.power))
     message(">> Data saved in savedRData directory.")
     message(paste0(">> Size: ", round(file.size(
-      paste0(savedRDataDir, filename.power))/2^10, 2), " KB")) 
+      paste0(savedRDataDir, filename.power))/2^10, 2), " KB"))
   }
   return(resObject)
 }

@@ -58,15 +58,15 @@ groupVec <- exampleProteomicsData$groupVec
 resObject <- estimatePower(dataMatrix, groupVec,
                            dataType="Proteomics",
                            isLogTransformed=FALSE,
-                           minLFC=0, alpha=0.05, ST=10, seed=123,
-                           saveResultData=FALSE)
+                           minLFC=0, alpha=0.05, 
+                           ST=10, seed=123)
 
 # Run estimation with minLFC=1 (Fold Change=2)
 resObject2 <- estimatePower(dataMatrix, groupVec,
                            dataType="Proteomics",
                            isLogTransformed=FALSE,
-                           minLFC=1, alpha=0.05, ST=10, seed=123,
-                           saveResultData=FALSE)
+                           minLFC=1, alpha=0.05, 
+                           ST=10, seed=123)
 
 # Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
 # Note: Simulation times(ST) is specified as 10 for shorter example runtime
@@ -79,15 +79,15 @@ groupVec <- exampleRNASeqData$groupVec
 resObject <- estimatePower(dataMatrix, groupVec,
                              dataType="RNASeq",
                              isLogTransformed=FALSE,
-                             minLFC=0, alpha=0.05, ST=10, seed=123,
-                             saveResultData=FALSE)
+                             minLFC=0, alpha=0.05, 
+                             ST=10, seed=123)
 
 # Run estimation with minLFC=1 (Fold Change=2)
 resObject2 <- estimatePower(dataMatrix, groupVec,
                             dataType="RNASeq",
                             isLogTransformed=FALSE,
-                            minLFC=1, alpha=0.05, ST=10, seed=123,
-                            saveResultData=FALSE)
+                            minLFC=1, alpha=0.05, 
+                            ST=10, seed=123)
 
 
 }

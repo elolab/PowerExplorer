@@ -4,6 +4,7 @@
 # Author: Xu Qiao (xu.qiao@utu.fi)
 # Created: 22nd, Sep, 2017
 # Last Modified: 5th, Jan, 2017
+#' @importFrom stats na.omit
 calculateLFC.prot <- function(abundanceData,
                               groupVec,
                               isLogTransformed=FALSE) {
@@ -17,7 +18,11 @@ calculateLFC.prot <- function(abundanceData,
   proteinNames <- rownames(abundanceData)
   
   comp_index <- combn(seq_len(numGroup), 2)
-  colnames(comp_index) <- apply(comp_index, 2, function(x) paste0(groupnames[x[1]], ".vs.",groupnames[x[2]]))
+  colnames(comp_index) <- apply(comp_index, 2, 
+                                function(x) 
+                                  paste0(groupnames[x[1]], 
+                                         ".vs.",
+                                         groupnames[x[2]]))
   res <- apply(comp_index, 2, function(x){
     g1 <- x[1]; g2 <- x[2]
     idx00 <- numRep * (g1 - 1) + 1

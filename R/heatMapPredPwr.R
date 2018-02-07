@@ -1,4 +1,20 @@
+#' Observe Predicted Power Within Different LFC Scales.
+#' @name heatMapPredPwr
+#' @rdname heatMapPredPwr
+#' @exportMethod heatMapPredPwr
+setGeneric(name="heatMapPredPwr",
+           def=function(PEObject,
+                        minLFC,
+                        maxLFC,
+                        LFCscale)
+           {
+             standardGeneric("heatMapPredPwr")
+           }
+)
+
 #' Observe Predicted Power Within Different LFC Scales
+#' @rdname heatMapPredPwr
+#' @aliases heatMapPredPwr,PEObject-method
 #' @description With a complete power list and LFC list returned from
 #' \code{predictPower}, power estimates can be observed dynamically
 #' within specified LFC ranges.
@@ -10,40 +26,30 @@
 #' right edge of the LFC range within which genes will be included in the graph.
 #' @param LFCscale the size of each unit when segmenting predicted power by LFC
 #' @return plot(s) of power density under multiple sample sizes
-#' @export
+#' @exportMethod heatMapPredPwr
 #' @import ggplot2
 #' @import gridExtra
 #' @examples
 #' # load an example onject containing
 #' # predicted power under different sample sizes
-#' data(examplePredictedPower)
+#' data(examplePEObject)
 #' # plot a heatmap
-#' plotPredPwr(examplePredictedPower,
-#'                    LFCscale=1)
-#' plotPredPwr(examplePredictedPower,
-#'                    plotType="lineplot",
-#'                    LFCscale=1)
+#' heatMapPredPwr(examplePEObject,
+#'                LFCscale=1)
+#' heatMapPredPwr(examplePEObject,
+#'                LFCscale=1)
 #' #It is possible to observe power trend in different scales and ranges of LFCs
-#' plotPredPwr(examplePredictedPower,
-#'                    minLFC=0,
-#'                    maxLFC=3,
-#'                    LFCscale=0.5)
-#' plotPredPwr(examplePredictedPower,
-#'                    minLFC=0,
-#'                    maxLFC=3,
-#'                    LFCscale=1)
+#' heatMapPredPwr(examplePEObject,
+#'             minLFC=0,
+#'             maxLFC=3,
+#'             LFCscale=0.5)
+#' heatMapPredPwr(examplePEObject,
+#'             minLFC=0,
+#'             maxLFC=3,
+#'             LFCscale=1)
 # Author: Xu Qiao
 # Created: 25th, Sep, 2017
-# Last Modifed: 10th, Jan, 2018
-setGeneric(name="heatMapPredPwr",
-           def=function(PEObject,
-                        minLFC,
-                        maxLFC,
-                        LFCscale)
-           {
-             standardGeneric("heatMapPredPwr")
-           }
-)
+# Last Modifed: 18th, Feb, 2018
 
 setMethod("heatMapPredPwr", "PEObject", function(PEObject,
                                                  minLFC,
@@ -51,12 +57,14 @@ setMethod("heatMapPredPwr", "PEObject", function(PEObject,
                                                  LFCscale)
           {
           plot.data <- extPlotData(PEObject, minLFC, maxLFC, LFCscale)
-          SummaryTable <- aggregate(x = plot.data$power, 
-                                    by = list(plot.data$comp, plot.data$repNum), 
-                                    FUN = function(x) mean(x, na.rm=TRUE))
+          SummaryTable <- aggregate(x = plot.data$power,
+                                    by = list(plot.data$comp,
+                                              plot.data$repNum),
+                                    FUN = function(x)
+                                      mean(x, na.rm=TRUE))
           SummaryTable <- SummaryTable[order(SummaryTable$Group.1), ]
           repNums <- paste0("repNum:", unique(SummaryTable$Group.2))
-          SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2), 
+          SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2),
                                                SummaryTable$Group.1))
           sumTable <- tableGrob(SummaryTable,
                                 rows=row.names(SummaryTable),
@@ -65,11 +73,13 @@ setMethod("heatMapPredPwr", "PEObject", function(PEObject,
           minLFC <- attributes(plot.data)$info["minLFC"]
           maxLFC <- attributes(plot.data)$info["maxLFC"]
           LFCscale <- attributes(plot.data)$info["LFCscale"]
-          p.heat <- ggplot(plot.data, aes_string("repNum", "lfc.range")) +
+          p.heat <- ggplot(plot.data,
+                           aes_string("repNum", "lfc.range")) +
             geom_tile(aes_string(fill="power")) +
             scale_fill_gradient2(low="blue", mid="yellow", high="red",
                                  midpoint=0.6,
-                                 guide_colorbar(title="power", title.vjust = 1)) +
+                                 guide_colorbar(title="power",
+                                                title.vjust = 1)) +
             xlab("Replicate number") + ylab("LFC range") +
             facet_wrap(~comp) +
             theme_light(base_size = 9)+
@@ -80,9 +90,9 @@ setMethod("heatMapPredPwr", "PEObject", function(PEObject,
             ggtitle(label="Average Predicted Power within LFC ranges",
                     subtitle=
                       sprintf(
-                        "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
+      "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
                         LFCscale, minLFC, maxLFC))
-          
+
           grid.arrange(p.heat,
                        sumTable,
                        newpage=TRUE,

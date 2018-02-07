@@ -1,4 +1,21 @@
 #' Observe Predicted Power Within Different LFC Scales
+#' @name linePlotPredPwr
+#' @rdname linePlotPredPwr
+#' @exportMethod linePlotPredPwr
+setGeneric(name="linePlotPredPwr",
+           def=function(PEObject,
+                        minLFC,
+                        maxLFC,
+                        LFCscale)
+           {
+             standardGeneric("linePlotPredPwr")
+           }
+)
+
+#' Observe Predicted Power Within Different LFC Scales
+#' @rdname linePlotPredPwr
+#' @aliases linePlotPredPwr, PEObject-method
+#' @exportMethod linePlotPredPwr
 #' @description With a complete power list and LFC list returned from
 #' \code{predictPower}, power estimates can be observed dynamically
 #' within specified LFC ranges.
@@ -10,52 +27,43 @@
 #' right edge of the LFC range within which genes will be included in the graph.
 #' @param LFCscale the size of each unit when segmenting predicted power by LFC
 #' @return plot(s) of power density under multiple sample sizes
-#' @export
+#' @exportMethod linePlotPredPwr
 #' @import ggplot2
 #' @import gridExtra
 #' @examples
 #' # load an example onject containing
 #' # predicted power under different sample sizes
-#' data(examplePredictedPower)
+#' data(examplePEObject)
 #' # plot a heatmap
-#' plotPredPwr(examplePredictedPower,
+#' linePlotPredPwr(examplePEObject,
 #'                    LFCscale=1)
-#' plotPredPwr(examplePredictedPower,
+#' linePlotPredPwr(examplePEObject,
 #'                    LFCscale=1)
 #' #It is possible to observe power trend in different scales and ranges of LFCs
-#' plotPredPwr(examplePredictedPower,
+#' linePlotPredPwr(examplePEObject,
 #'                    minLFC=0,
-#'                    maxLFC=3,
+#'                    maxLFC=2,
 #'                    LFCscale=0.5)
-#' plotPredPwr(examplePredictedPower,
+#' linePlotPredPwr(examplePEObject,
 #'                    minLFC=0,
-#'                    maxLFC=3,
+#'                    maxLFC=2,
 #'                    LFCscale=1)
 # Author: Xu Qiao
 # Created: 25th, Sep, 2017
-# Last Modifed: 10th, Jan, 2018
-setGeneric(name="linePlotPredPwr",
-           def=function(PEObject,
-                        minLFC,
-                        maxLFC,
-                        LFCscale)
-           {
-             standardGeneric("linePlotPredPwr")
-           }
-)
+# Last Modifed: 18th, Feb, 2018
 
 setMethod("linePlotPredPwr", "PEObject", function(PEObject,
                                                   minLFC,
                                                   maxLFC,
                                                   LFCscale){
             plot.data <- extPlotData(PEObject, minLFC, maxLFC, LFCscale)
-            SummaryTable <- aggregate(x = plot.data$power, 
-                                      by = list(plot.data$comp, 
-                                                plot.data$repNum), 
+            SummaryTable <- aggregate(x = plot.data$power,
+                                      by = list(plot.data$comp,
+                                                plot.data$repNum),
                                       FUN = function(x) mean(x, na.rm=TRUE))
             SummaryTable <- SummaryTable[order(SummaryTable$Group.1), ]
             repNums <- paste0("repNum:", unique(SummaryTable$Group.2))
-            SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2), 
+            SummaryTable <- do.call(rbind, split(round(SummaryTable$x,2),
                                                  SummaryTable$Group.1))
             sumTable <- tableGrob(SummaryTable,
                                   rows=row.names(SummaryTable),
@@ -63,7 +71,7 @@ setMethod("linePlotPredPwr", "PEObject", function(PEObject,
                                   theme=ttheme_default(base_size=8))
             minLFC <- attributes(plot.data)$info["minLFC"]
             maxLFC <- attributes(plot.data)$info["maxLFC"]
-            LFCscale <- attributes(plot.data)$info["LFCscale"]  
+            LFCscale <- attributes(plot.data)$info["LFCscale"]
             p.trend <-
                 ggplot(plot.data, aes_string("repNum",
                                              "power",
@@ -75,7 +83,7 @@ setMethod("linePlotPredPwr", "PEObject", function(PEObject,
                 ggtitle(label="Average Predicted Power within LFC ranges",
                         subtitle=
                           sprintf(
-                            "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
+              "segmented by every %s Log2FoldChange (minLFC: %s, maxLFC: %s)",
                             LFCscale, minLFC, maxLFC)) +
                 xlab("Replicate Number") + ylab("Average power") +
                 guides(colour=guide_legend(title="LFC range")) +
@@ -84,7 +92,7 @@ setMethod("linePlotPredPwr", "PEObject", function(PEObject,
                       legend.text=element_text(size=8),
                       legend.position="right",
                       legend.key.size = unit(0.5, "cm"))
-              
+
                 grid.arrange(p.trend,
                              sumTable,
                              newpage=TRUE,

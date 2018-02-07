@@ -21,6 +21,8 @@ directly without further transformation}
 \item{dataType}{"RNASeq" or "Proteomics" indictes the data type of
 the input data matrix.}
 
+\item{minLFC}{LFC threshold}
+
 \item{rangeSimNumRep}{a vector of sample sizes under which power
 will be estimated}
 
@@ -31,12 +33,13 @@ repeated times of statistical test for each protein (>=100 recommended).}
 
 \item{seed}{an integer seed for the random number generator.}
 
+\item{showSimProcess}{logical; if \code{TRUE}, 
+show the detailed information of
+each simulation, used for debugging only.}
+
 \item{saveResultData}{logical; if \code{TRUE}, save the simulated data
 into RData with name pattern
 "simulated_Data_numRep_X_numSim_XXX_XXXXX.RData"}
-
-\item{showProcess}{logical; if \code{TRUE}, show the detailed information of
-each simulation, used for debugging only.}
 }
 \value{
 a list of power predictions for each sample size, grouped in
@@ -56,13 +59,11 @@ groupVec <- exampleProteomicsData$groupVec
 # Note: Simulation times(ST) is specified as 5 for shorter example runtime
 #       For better performence, ST > 50 is recommended
 predictedPower <- predictPower(dataMatrix, groupVec,
-                                         isLogTransformed=FALSE,
-                                         dataType="Proteomics",
-                                         minLFC=0,
-                                         rangeSimNumRep=c(5, 10, 15),
-                                         alpha=0.05, ST=5, seed=123,
-                                         showSimProcess=FALSE,
-                                         saveResultData=FALSE)
+                               isLogTransformed=FALSE,
+                               dataType="Proteomics",
+                               minLFC=0,
+                               rangeSimNumRep=c(5, 10, 15),
+                               alpha=0.05, ST=5, seed=123)
 # Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
 data(exampleRNASeqData)
 dataMatrix <- exampleRNASeqData$dataMatrix
@@ -72,13 +73,11 @@ groupVec <- exampleRNASeqData$groupVec
 # Note: Simulation times(ST) is specified as 5 for shorter example runtime
 #       For better performence, ST > 50 is recommended
 predictedPower <- predictPower(dataMatrix, groupVec,
-                                         isLogTransformed=FALSE,
-                                         dataType="RNASeq",
-                                         minLFC=0,
-                                         rangeSimNumRep=c(5, 10, 15),
-                                         alpha=0.05, ST=5, seed=123,
-                                         showSimProcess=FALSE,
-                                         saveResultData=FALSE)
+                               isLogTransformed=FALSE,
+                               dataType="RNASeq",
+                               minLFC=0,
+                               rangeSimNumRep=c(5, 10, 15),
+                               alpha=0.05, ST=5, seed=123)
 }
 \seealso{
 \code{\link{estimatePower}} estimate power based on
