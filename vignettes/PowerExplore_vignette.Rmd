@@ -97,7 +97,7 @@ directory.
 
 The results will be summaried in barplot, boxplot and summary table.
 
-```{r estimation run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE, paged.print=TRUE}
+```{r est run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")
 res <- estimatePower(inputObject = exampleRNASeqData$dataMatrix,
