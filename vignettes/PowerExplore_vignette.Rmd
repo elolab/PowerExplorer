@@ -35,21 +35,23 @@ next-generation sequencing experiments to discover differential expressions.
 to RNA-Seq and quantitative proteomics experiments.
 
 The calculation procedure starts with estimating the distribution parameters of
-each gene or protein (following referred as feature for simplicity). With the
-obtained prior distribution of each feature, a specified amount of simulations
-are executed to generate data (read counts for RNA-Seq and protein abundance for
-proteomics) repetitively for each entry based on null and alternative hypotheses
-. Furthermore, the corresponding statistical tests (t-test or Wald-test) are
-performed and the test statistics are collected. Eventually the statistics will
-be summarized to calculate the statistical power.
+each gene or protein. With the obtained prior distribution of each feature, 
+a specified amount of simulations are executed to generate data (read counts 
+for RNA-Seq and protein abundance for proteomics) repetitively for each entry 
+based on null and alternative hypotheses. Furthermore, the corresponding 
+statistical tests (t-test or Wald-test) are performed and the test statistics 
+are collected. Eventually the statistics will be summarized to calculate 
+the statistical power.
 
 \newpage
 
-# Prepare Input Data
+# Input Data Preparation
 
 For both RNA-Seq (gene expression levels) and quantitative proteomics (protein
-abundance levels) datasets, the data matrix should be arranged as features in
-rows and samples in columns, for example:
+abundance levels) datasets, the data matrix should be arranged as 
+genes/proteins in rows and samples in columns. Here we show a RNA dataset
+as an example:
+
 ```{r showDataExample, message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")
@@ -71,7 +73,7 @@ data matrix.
 
 \newpage
 
-# Run Estimation
+# Power Estimation
 
 Here we use a randomly generated RNASeq dataset `exampleRNASeqData` as an
 example to estimate the current power of the dataset. The input dataset is named
@@ -131,7 +133,7 @@ in a numerical way with the same information shown in the previous two plots.
 
 \newpage
 
-# Run Predictions
+# Power Predictions
 With the same dataset, to run a prediction, a different parameter is needed:
 
 - `rangeSimNumRep`: the power of replicate number 5 to 20 will be predicted.
@@ -173,16 +175,16 @@ plotPredPwr(res, LFCscale = 0.5)
 ```
 
 The output figure contains a lineplot and a summary table. 
-For each comparison, the lineplot shows the power
-tendency across every Log2 Fold Change segment resulted from a complete LFC list
-divided by a specified `LFCscale`. Each dot on the lines stands for the average
-power (y-axis) of the genes within the LFC range (x-axis), and each colour
-indicates the average power of a certain sample size (as shown in the legend
-besides the plot). In addition, a summary table below displays the average
-power of each comparison across the sample sizes.
+For each comparison, the lineplot shows the power tendency across 
+every Log2 Fold Change segment resulted from a complete LFC list divided 
+by a specified `LFCscale`. Each dot on the lines represents the average
+power (y-axis) of the genes/proteins at a certain sample size (x-axis) 
+within different  LFC ranges. In addition, a summary table below displays 
+the average power of each comparison across the sample sizes.
 
-For instance, the line plot here shows the average power of four sample sizes
-(5 to 30, with increment of 5) in LFCscale of 0.5. The LFC ranges from 0 to 5,
-and within each LFC segment, the graph shows the average power of the features.
-Here, the higher LFC shows higher power, the average power of each LFC range
-increases with the larger sample sizes, as expected.
+For instance, the line plot here shows the average power at four different 
+sample sizes (5 to 30, with increment of 5) in LFCscale of 0.5. 
+The LFC ranges from 0 to 5, and within each LFC segment, the graph shows the 
+average power of the genes/proteins. Here, the higher LFC shows higher power, 
+the average power of each LFC range increases with the larger sample sizes, 
+as expected.

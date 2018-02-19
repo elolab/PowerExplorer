@@ -36,7 +36,7 @@
   # cl <- makeCluster(nodes)
   # registerDoParallel(cl)
   simulatedData <- llply(seq_len(ST),
-                         .progress=progress_win(
+                         .progress=plyr::progress_win(
                            title = "Simulation in progress..."), 
                          function(x){
       tempMatrix <- apply(paraMatrix, 1, function(x) {
