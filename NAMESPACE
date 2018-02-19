@@ -3,7 +3,6 @@
 export(estimatePower)
 export(predictPower)
 exportClasses(PEObject)
-exportMethods(heatMapPredPwr)
 exportMethods(linePlotPredPwr)
 exportMethods(plotEstPwr)
 import(DESeq2)

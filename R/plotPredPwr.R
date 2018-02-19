@@ -1,21 +1,21 @@
 #' Observe Predicted Power Within Different LFC Scales
-#' @name linePlotPredPwr
-#' @rdname linePlotPredPwr
-#' @exportMethod linePlotPredPwr
-setGeneric(name="linePlotPredPwr",
+#' @name plotPredPwr
+#' @rdname plotPredPwr
+#' @exportMethod plotPredPwr
+setGeneric(name="plotPredPwr",
            def=function(PEObject,
                         minLFC,
                         maxLFC,
                         LFCscale)
            {
-             standardGeneric("linePlotPredPwr")
+             standardGeneric("plotPredPwr")
            }
 )
 
 #' Observe Predicted Power Within Different LFC Scales
-#' @rdname linePlotPredPwr
-#' @aliases linePlotPredPwr, PEObject-method
-#' @exportMethod linePlotPredPwr
+#' @rdname plotPredPwr
+#' @aliases plotPredPwr, PEObject-method
+#' @exportMethod plotPredPwr
 #' @description With a complete power list and LFC list returned from
 #' \code{predictPower}, power estimates can be observed dynamically
 #' within specified LFC ranges.
@@ -27,7 +27,7 @@ setGeneric(name="linePlotPredPwr",
 #' right edge of the LFC range within which genes will be included in the graph.
 #' @param LFCscale the size of each unit when segmenting predicted power by LFC
 #' @return plot(s) of power density under multiple sample sizes
-#' @exportMethod linePlotPredPwr
+#' @exportMethod plotPredPwr
 #' @import ggplot2
 #' @import gridExtra
 #' @examples
@@ -35,16 +35,16 @@ setGeneric(name="linePlotPredPwr",
 #' # predicted power under different sample sizes
 #' data(examplePEObject)
 #' # plot a heatmap
-#' linePlotPredPwr(examplePEObject,
+#' plotPredPwr(examplePEObject,
 #'                    LFCscale=1)
-#' linePlotPredPwr(examplePEObject,
+#' plotPredPwr(examplePEObject,
 #'                    LFCscale=1)
 #' #It is possible to observe power trend in different scales and ranges of LFCs
-#' linePlotPredPwr(examplePEObject,
+#' plotPredPwr(examplePEObject,
 #'                    minLFC=0,
 #'                    maxLFC=2,
 #'                    LFCscale=0.5)
-#' linePlotPredPwr(examplePEObject,
+#' plotPredPwr(examplePEObject,
 #'                    minLFC=0,
 #'                    maxLFC=2,
 #'                    LFCscale=1)
@@ -52,7 +52,7 @@ setGeneric(name="linePlotPredPwr",
 # Created: 25th, Sep, 2017
 # Last Modifed: 18th, Feb, 2018
 
-setMethod("linePlotPredPwr", "PEObject", function(PEObject,
+setMethod("plotPredPwr", "PEObject", function(PEObject,
                                                   minLFC,
                                                   maxLFC,
                                                   LFCscale){
