@@ -11,7 +11,7 @@
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 29th, Dec, 2017
-#' @import utils
+#' @importFrom utils winProgressBar
 #' @importFrom plyr llply progress_win
   simulateData <- function(paraMatrix,
                            dataType=c("RNASeq", "Proteomics"),
