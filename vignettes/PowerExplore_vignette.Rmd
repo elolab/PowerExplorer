@@ -97,7 +97,7 @@ directory.
 
 The results will be summaried in barplot, boxplot and summary table.
 
-```{r estimation run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE, paged.print=TRUE}
+```{r est run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE}
 library(PowerExplorer)
 data("exampleRNASeqData")
 res <- estimatePower(inputObject = exampleRNASeqData$dataMatrix,
@@ -172,8 +172,8 @@ Lineplot (LFCscale = 0.5):
 plotPredPwr(res, LFCscale = 0.5)
 ```
 
-Lineplot is one of the optional outputs of `plotPredPwr`, the output contains a
-lineplot and a summary table. For each comparison, the lineplot shows the power
+The output figure contains a lineplot and a summary table. 
+For each comparison, the lineplot shows the power
 tendency across every Log2 Fold Change segment resulted from a complete LFC list
 divided by a specified `LFCscale`. Each dot on the lines stands for the average
 power (y-axis) of the genes within the LFC range (x-axis), and each colour
