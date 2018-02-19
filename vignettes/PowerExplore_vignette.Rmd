@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
 \newpage
 
 # Abstract
@@ -98,17 +97,17 @@ directory.
 
 The results will be summaried in barplot, boxplot and summary table.
 
-```{r estimation run, fig.keep='none', message=FALSE, warning=FALSE}
+```{r estimation run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE, paged.print=TRUE}
 library(PowerExplorer)
 data("exampleRNASeqData")
 res <- estimatePower(inputObject = exampleRNASeqData$dataMatrix,
-                               groupVec = exampleRNASeqData$groupVec,
-                               isLogTransformed = FALSE,
-                               dataType = "RNASeq",
-                               minLFC = 0.5,
-                               alpha = 0.05,
-                               ST = 50,
-                               seed = 345)
+                     groupVec = exampleRNASeqData$groupVec,
+                     isLogTransformed = FALSE,
+                     dataType = "RNASeq",
+                     minLFC = 0.5,
+                     alpha = 0.05,
+                     ST = 50,
+                     seed = 345)
 ```
 
 
@@ -152,7 +151,7 @@ res <- predictPower(inputObject = res,
                     rangeSimNumRep = c(5, 10, 15, 20),
                     minLFC = 1,
                     alpha = 0.05,
-                    ST = 30,
+                    ST = 50,
                     seed = 345)
 ```
 
@@ -164,16 +163,13 @@ The predicted results can be summaried using `plotPredPwr`. The input should be
 the predicted power object returned from `predictPower`, the summary can be
 optionally visualized by setting the following parameters:
 
-- `plotType`: power-samplesize-foldchange relationship can be visualized
-optionally between "lineplot" and "heatmap".
+- `PEObject`: A PEObject returned from PowerExplorer as input
 - `minLFC` and `maxLFC`: to observe power in a specific range of LFC
 - `LFCscale`: to determine the LFC scale of the observation
 
-### Line Plot
-
 Lineplot (LFCscale = 0.5):
 ```{r LinePlot}
-linePlotPredPwr(res, LFCscale = 0.5)
+plotPredPwr(res, LFCscale = 0.5)
 ```
 
 Lineplot is one of the optional outputs of `plotPredPwr`, the output contains a
@@ -190,17 +186,3 @@ For instance, the line plot here shows the average power of four sample sizes
 and within each LFC segment, the graph shows the average power of the features.
 Here, the higher LFC shows higher power, the average power of each LFC range
 increases with the larger sample sizes, as expected.
-
-### Heatmap
-
-Heatmap (LFCscale = 0.5):
-```{r Heatmap}
-heatMapPredPwr(res, LFCscale = 0.5)
-```
-
-The heatmap option presents the power predictions in a similar way, as previous
-visualizations. Each heatmap displays overall power of each LFC range and sample
-size. The average power of each LFC range is scaled with colours between blue
-and red, as shown in the colour bar on the right. For example, this graph shows
-the power increasing with larger sample sizes as expected. The same summary
-table is also shown at the bottom.
