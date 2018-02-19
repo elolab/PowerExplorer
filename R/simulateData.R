@@ -11,8 +11,6 @@
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 29th, Dec, 2017
-#' @importFrom utils winProgressBar
-#' @importFrom plyr llply progress_win
   simulateData <- function(paraMatrix,
                            dataType=c("RNASeq", "Proteomics"),
                            simNumRep,
@@ -35,9 +33,9 @@
   # nodes <- detectCores()
   # cl <- makeCluster(nodes)
   # registerDoParallel(cl)
-  simulatedData <- llply(seq_len(ST),
-                         .progress=plyr::progress_win(
-                           title = "Simulation in progress..."), 
+  simulatedData <- lapply(seq_len(ST),
+                         # .progress=plyr::progress_win(
+                         #   title = "Simulation in progress..."), 
                          function(x){
       tempMatrix <- apply(paraMatrix, 1, function(x) {
         # extract parameters: para0 - mean, para1 - dispersion/sd
