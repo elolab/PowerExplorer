@@ -10,7 +10,7 @@
 # contains count data, Wald statistics, mean and dispersion of each gene
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
-# Last Modifed: 29th, Dec, 2017
+# Last Modifed: 19th, Feb, 2017
   simulateData <- function(paraMatrix,
                            dataType=c("RNASeq", "Proteomics"),
                            simNumRep,
