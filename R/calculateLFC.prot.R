@@ -6,8 +6,7 @@
 # Last Modified: 5th, Jan, 2017
 #' @importFrom stats na.omit
 calculateLFC.prot <- function(abundanceData,
-                              groupVec,
-                              isLogTransformed=FALSE) {
+                              groupVec) {
   numGroup <- length(unique(groupVec))
   numRep <- floor(length(groupVec)/numGroup)
 
@@ -33,11 +32,6 @@ calculateLFC.prot <- function(abundanceData,
     # extract data from each group
     data.case.g1 <- abundanceData[, idx00:idx01]
     data.case.g2 <- abundanceData[, idx10:idx11]
-    # log-transform the data if not isLogTransformed
-    if(isLogTransformed == FALSE) {
-      data.case.g1 <- log2(data.case.g1 +1)
-      data.case.g2 <- log2(data.case.g2 +1)
-    }
     mean.g1 <- rowMeans(data.case.g1, na.rm = TRUE) # means of group 1
     mean.g2 <- rowMeans(data.case.g2, na.rm = TRUE) # means of group 2
     # names

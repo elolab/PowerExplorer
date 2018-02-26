@@ -159,7 +159,8 @@ predictPower <- function(inputObject, groupVec,
   )
 
   resObject <- new("PEObject", SE, groupVec=groupVec,
-                   LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes),
+                   LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes, 
+                                               check.names = FALSE),
                    minLFC=minLFC,
                    alpha=alpha,
                    ST=ST,

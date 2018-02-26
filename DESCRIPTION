@@ -1,6 +1,6 @@
 Package: PowerExplorer
 Title: Power Estimation Tool for RNA-Seq and proteomics data
-Version: 0.99.12
+Version: 0.99.13
 Authors@R: c(person("Xu", "Qiao", role=c("aut","cre"), email="xu.qiao@utu.fi"),
              person("Laura", "Elo", role=c("cph"), email="laura.elo@utu.fi"))
 URL: https://github.com/xuqiao93/PowerExplorer
@@ -17,18 +17,19 @@ biocViews:
     ChIPSeq
 Depends: 
     R (>= 3.5.0), 
-    DESeq2, 
-    ggplot2, 
+    DESeq2,
+    vsn,
     SummarizedExperiment,
-    Biobase,
-    S4Vectors
 Imports: 
     stats, 
     utils, 
     methods, 
     gridExtra, 
     MASS,
-    data.table
+    data.table,
+    ggplot2,
+    Biobase,
+    S4Vectors
 Suggests: 
     knitr, 
     rmarkdown

@@ -12,12 +12,17 @@ extPlotData <- function(PEObject, minLFC, maxLFC, LFCscale){
   colnames(molten.lfc) <- c("entry", "comp", "lfc")
   molten.lfc$lfc <- abs(as.numeric(molten.lfc$lfc))
   molten.pp.lfc <- merge(molten.pp, molten.lfc, by=c("entry", "comp"))
-  if (missing(minLFC)) minLFC <- round(min(molten.pp.lfc$lfc))
+  if (missing(minLFC)) minLFC <- PEObject@minLFC
   if (missing(maxLFC)) maxLFC <- round(max(molten.pp.lfc$lfc))
-  if(minLFC >= maxLFC) stop("Error: minLFC should be smaller than maxLFC.")
+  if(minLFC >= maxLFC) stop("\nError: minLFC should be smaller than maxLFC.\n")
   if(maxLFC > round(max(molten.pp.lfc$lfc))) {
     maxLFC <- round(max(molten.pp.lfc$lfc))
-    message(paste("[Correction] The actual maxLFC in data is", maxLFC))}
+    message(paste("\n[Correction] The actual maxLFC in data is", maxLFC))}
+  if(minLFC < PEObject@minLFC) {
+    minLFC <- PEObject@minLFC
+    message(paste("\n[Correction] The actual minLFC in data is", minLFC))}
+  
+  molten.pp.lfc <- subset(molten.pp.lfc, lfc>=minLFC & lfc<=maxLFC)
   
   molten.pp.lfc$lfc.rg <- cut(molten.pp.lfc$lfc,
                               breaks=seq(minLFC, maxLFC+LFCscale, LFCscale),

@@ -54,8 +54,8 @@ as an example:
 
 ```{r showDataExample, message=FALSE, warning=FALSE}
 library(PowerExplorer)
-data("exampleRNASeqData")
-head(exampleRNASeqData$dataMatrix[,1:6])
+data("exampleProteomicsData")
+head(exampleProteomicsData$dataMatrix)
 ```
 
 A grouping vector indicating the sample groups to which all the samples belong
@@ -75,18 +75,19 @@ data matrix.
 
 # Power Estimation
 
-Here we use a randomly generated RNASeq dataset `exampleRNASeqData` as an
-example to estimate the current power of the dataset. The input dataset is named
-as `dataMatrix` and the grouping vector as `groupVec`.
+Here we use a randomly generated Proteomics dataset `exampleProteomicsData` 
+as an example to estimate the current power of the dataset. 
+The input dataset is named as `dataMatrix` and the grouping vector 
+as `groupVec`.
 
 To run the estimation, apart from the input, we still need to specify the
 following parameters:
 
 - `isLogTransformed`: FALSE; the input data is not log-transformed.
-- `dataType`: "RNA-Seq"; the datatype can be declared as "Proteomics" or
+- `dataType`: "Proteomics"; the datatype can be declared as "Proteomics" or
 "RNA-Seq".
-- `minLFC`: 0.5; the threshold of Log2 Fold Change, proteins with lower LFC will
-be discarded.
+- `minLFC`: 0.5; the threshold of Log2 Fold Change, proteins with lower LFC 
+will be discarded.
 - `alpha`: 0.05; the controlled false positive (Type I Error) rate.
 - `ST`: 50; the simulation of each gene will be run 50 times (ST>50 is
   recommended).
@@ -101,15 +102,17 @@ The results will be summaried in barplot, boxplot and summary table.
 
 ```{r est run, echo=TRUE, fig.keep='none', message=FALSE, warning=FALSE}
 library(PowerExplorer)
-data("exampleRNASeqData")
-res <- estimatePower(inputObject = exampleRNASeqData$dataMatrix,
-                     groupVec = exampleRNASeqData$groupVec,
+data("exampleProteomicsData")
+res <- estimatePower(inputObject = exampleProteomicsData$dataMatrix,
+                     groupVec = exampleProteomicsData$groupVec,
                      isLogTransformed = FALSE,
-                     dataType = "RNASeq",
+                     dataType = "Proteomics",
                      minLFC = 0.5,
                      alpha = 0.05,
                      ST = 50,
-                     seed = 345)
+                     seed = 345, 
+                     showSimProcess = FALSE, 
+                     saveResultData = FALSE)
 ```
 
 
@@ -133,6 +136,40 @@ in a numerical way with the same information shown in the previous two plots.
 
 \newpage
 
+## Result Summary
+
+With the result `PEObject` object, summarized information can be shown by
+`show` method.
+```{r}
+res
+```
+
+If interested in specific genes/proteins or a ranking list, one can use 
+`listEstPwr` with the following parameters:
+
+- `PEObject`: A PEObject returned from PowerExplorer as input
+- `decreasing`: logical; TRUE, decreasing order; FALSE, increasing order.
+- `top`: numeric; the number of genes/proteins in the top list
+- `selected`: default as NA; specify as a list of geneID or protein ID 
+to show power of a list of interested genes/proteins.
+
+To show the top 10 proteins in an example result object `examplePEObject`
+in decreasing order:
+
+```{r}
+data(examplePEObject)
+listEstPwr(examplePEObject, decreasing = TRUE, top = 10)
+```
+
+To show the results of specific proteins:
+
+```{r}
+listEstPwr(examplePEObject, 
+           selected = c("P00424", "P53219", "P00167ups", "Q06830ups"))
+```
+
+\newpage
+
 # Power Predictions
 With the same dataset, to run a prediction, a different parameter is needed:
 
@@ -145,13 +182,13 @@ this vignette refers to the replicate number of each group/case)
 It is possible to append the prediction results within the same object by using
 the same result object as an input.
 ```{r prediction run2, message=FALSE, warning=FALSE}
-data("exampleRNASeqData")
+data("exampleProteomicsData")
 res <- predictPower(inputObject = res,
-                    groupVec = exampleRNASeqData$groupVec,
+                    groupVec = exampleProteomicsData$groupVec,
                     isLogTransformed = FALSE,
-                    dataType = "RNASeq",
+                    dataType = "Proteomics",
                     rangeSimNumRep = c(5, 10, 15, 20),
-                    minLFC = 1,
+                    minLFC = 0.5,
                     alpha = 0.05,
                     ST = 50,
                     seed = 345)
@@ -188,3 +225,37 @@ The LFC ranges from 0 to 5, and within each LFC segment, the graph shows the
 average power of the genes/proteins. Here, the higher LFC shows higher power, 
 the average power of each LFC range increases with the larger sample sizes, 
 as expected.
+
+\newpage
+
+## Result Summary
+
+With the result `PEObject` object, summarized information can be shown by
+`show` method. Both estimated and predicted results can be summaried.
+```{r}
+res
+```
+
+If interested in specific genes/proteins or a ranking list of predicted 
+powerat each sample size, one can use `listPrePwr` with the following 
+parameters:
+
+- `PEObject`: A PEObject returned from PowerExplorer as input
+- `decreasing`: logical; TRUE, decreasing order; FALSE, increasing order.
+- `top`: numeric; the number of genes/proteins in the top list
+- `selected`: default as NA; specify as a list of geneID or protein ID 
+to show power of a list of interested genes/proteins.
+
+To show the top 10 genes in an example result object `examplePEObject`
+in decreasing order at each sample size:
+
+```{r}
+listPredPwr(examplePEObject, decreasing = TRUE, top = 10)
+```
+
+To show the results of specific genes at each sample size:
+
+```{r}
+listPredPwr(examplePEObject, 
+            selected = c("P00424", "P53219", "P00167ups", "Q06830ups"))
+```

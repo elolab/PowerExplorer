@@ -49,6 +49,7 @@ plotPredPwr <- function(PEObject, minLFC, maxLFC, LFCscale=1){
                                    group="lfc.range")) +
       geom_point(alpha=0.5, na.rm = TRUE) +
       geom_line(na.rm = TRUE) +
+      #scale_color_brewer(palette="Spectral") +
       facet_wrap(~comp) +
       ggtitle(label="Average Predicted Power within LFC ranges",
               subtitle=

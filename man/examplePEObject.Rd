@@ -4,12 +4,19 @@
 \name{examplePEObject}
 \alias{examplePEObject}
 \title{An Example Predicted Power Object For Plot Tests}
-\format{An object of class \code{PEObject} with 110 rows and 15 columns.}
+\format{An object of class \code{PEObject} with 1360 rows and 9 columns.}
 \usage{
 data(examplePEObject)
 }
 \description{
-This is an example PEObject
+This is an example PEObject resulted from
+an example run on a publically available spiked protein 
+dataset. The input dataset was subsetted, only concertration
+2fmol, 10fmol and 50fmol are kept, and all the 47 spike UPS1 
+yeast proteins are kept, while only 200 background human proteins
+are randomly picked to lower the overall dataset size.
+Details: https://www.btk.fi/research/computational-biomedicine/
+downloads/datasets/ups1-yeast-data/
 }
 \examples{
 data(examplePEObject)

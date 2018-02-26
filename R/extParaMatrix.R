@@ -1,5 +1,6 @@
 # extract distribution parameters from input data
 #' @importFrom stats quantile
+#' @importFrom vsn justvsn
 extParaMatrix <- function(dataMatrix, groupVec,
                           isLogTransformed=FALSE,
                           dataType=c("RNASeq","Proteomics"),
@@ -39,10 +40,13 @@ extParaMatrix <- function(dataMatrix, groupVec,
   else{
 
     # calcualte log fold changes between each two groups
-    LFCRes <- calculateLFC.prot(dataMatrix,
-                                 groupVec,
-                                 isLogTransformed=isLogTransformed)
-    normalized.countData <- dataMatrix
+    if(!isLogTransformed) {
+      normalized.countData <- vsn::justvsn(dataMatrix)
+    } else{
+      normalized.countData <- dataMatrix
+    }
+    LFCRes <- calculateLFC.prot(normalized.countData,
+                                 groupVec)
   }
 
   groups <- unique(groupVec)
@@ -69,12 +73,6 @@ extParaMatrix <- function(dataMatrix, groupVec,
                           mean.g2, dispersion)
     }
     else{ #Proteomics
-      # log-transform the data if not isLogTransformed
-      if(isLogTransformed == FALSE) {
-        data.case.g1 <- log2(data.case.g1 +1)
-        data.case.g2 <- log2(data.case.g2 +1)
-      }
-
       meanSD.g1 <- apply(data.case.g1, 1, normDistMLE)
       meanSD.g2 <- apply(data.case.g2, 1, normDistMLE)
       paraMatrix <- t(rbind(meanSD.g1, meanSD.g2))

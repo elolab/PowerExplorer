@@ -163,13 +163,15 @@ switch (class(inputObject),
   )
   
   resObject <- new("PEObject", SE, groupVec=groupVec,
-                  LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes),
+                  LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes, 
+                                              check.names = FALSE),
                   minLFC=minLFC,
                   alpha=alpha,
                   ST=ST,
                   dataType=dataType,
                   simRepNumber=numRep,
-                  estPwr=S4Vectors::DataFrame(estimatedPower))
+                  estPwr=S4Vectors::DataFrame(estimatedPower,
+                                              check.names = FALSE))
   
   if(saveResultData){
     if(!("savedRData" %in% list.files())) dir.create("savedRData")
