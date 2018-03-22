@@ -13,10 +13,12 @@
 # Last Modifed: 19th, Feb, 2017
   simulateData <- function(paraMatrix,
                            dataType=c("RNASeq", "Proteomics"),
+                           isLogTransformed=FALSE,
+                           enableROTS=FALSE,
                            simNumRep,
                            ST=100,
                            minLFC = 0,
-                           showSimProcess = FALSE,
+                           showProcess = FALSE,
                            saveResultData=FALSE){
 
   # determine dataType
@@ -26,74 +28,110 @@
                             stop("Incorrect dataType."))
 
   numEntry <- nrow(paraMatrix)
-  entryList <- row.names(paraMatrix)
+  entryList <- rownames(paraMatrix)
   if(is.null(entryList))
     stop("Error: gene/protein names not found from input paramter matrix.")
+  if(enableROTS)
+    optPara <- attributes(paraMatrix)$optPara
 
-  # nodes <- detectCores()
-  # cl <- makeCluster(nodes)
-  # registerDoParallel(cl)
   simulatedData <- lapply(seq_len(ST),
-                         # .progress=plyr::progress_win(
-                         #   title = "Simulation in progress..."), 
                          function(x){
+      if(showProcess){
+        percent <- x*100 / ST
+        text <- sprintf("%s of %s simulations", x, ST)
+        cat(sprintf(paste0('\r>> [%-50s] %s '),
+                    paste(rep('=', percent / 2), collapse=''),
+                    text))
+        if (x == ST)
+          cat('\n')
+      }
       tempMatrix <- apply(paraMatrix, 1, function(x) {
         # extract parameters: para0 - mean, para1 - dispersion/sd
-        para0_0 <- x[1]
-        para0_1 <- x[3]
-        para1_0 <- x[2]
-        para1_1 <- x[4]
+        para0_0 <- x[1]; para0_1 <- x[3]
+        para1_0 <- x[2]; para1_1 <- x[4]
+        numMiss0 <- x[5]; numMiss1 <- x[6]
         # Show Progress Details - show each distribution under simulation
 
-        distName <- ifelse(dataTypeSelect,"NB","N")
-        if(showSimProcess == TRUE)
-          message(sprintf(">> Distributions: %s(%s, %s)\tand\t %s(%s, %s)",
-                          distName,
-                          round(para0_0,2),
-                          round(para1_0,2),
-                          distName,
-                          round(para0_1,2),
-                          round(para1_1,2)))
+        # distName <- ifelse(dataTypeSelect&!isLogTransformed,"NB","N")
+        # if(showProcess == TRUE)
+        #   message(sprintf(">> Distributions: %s(%s, %s)\tand\t %s(%s, %s)",
+        #                   distName,
+        #                   round(para0_0,2),
+        #                   round(para1_0,2),
+        #                   distName,
+        #                   round(para0_1,2),
+        #                   round(para1_1,2)))
 
       # simulate data for each gene/protein
       # null hypohesis: two groups should follow the same distribution
-      simData0 <-
-        if(dataTypeSelect) {
-          simCounts(simNumRep, para0_0, para0_0, para1_0, para1_0)
+        NBdist <- dataTypeSelect & !isLogTransformed & !enableROTS
+      simData0.1 <-
+        if(NBdist) {
+          simNB(simNumRep[1]-numMiss0, simNumRep[2]-numMiss0,
+                para0_0, para0_0, para1_0, para1_0)
         } else {
-          simAbundance(simNumRep, para0_0, para0_0, para1_0, para1_0) }
+          simNorm(simNumRep[1]-numMiss0, simNumRep[2]-numMiss0,
+                  para0_0, para0_0, para1_0, para1_0)
+        }
+      simData0.2 <-
+        if(NBdist) {
+          simNB(simNumRep[1]-numMiss1, simNumRep[2]-numMiss1,
+                para0_1, para0_1, para1_1, para1_1)
+        } else {
+          simNorm(simNumRep[1]-numMiss1, simNumRep[2]-numMiss1,
+                  para0_1, para0_1, para1_1, para1_1)
+        }
       simData1 <-
-        if(dataTypeSelect) {
-          simCounts(simNumRep, para0_0, para0_1, para1_0, para1_1)
+        if(NBdist) {
+          simNB(simNumRep[1]-numMiss0, simNumRep[2]-numMiss1,
+                para0_0, para0_1, para1_0, para1_1)
         } else {
-          simAbundance(simNumRep, para0_0, para0_1, para1_0, para1_1) }
+          simNorm(simNumRep[1]-numMiss0, simNumRep[2]-numMiss1,
+                  para0_0, para0_1, para1_0, para1_1)
+          }
 
-      statistics0 <-
-        if(dataTypeSelect) try(WaldTest(simData0))
-      else try(tTestGLM(simData0))
-
-      statistics1 <-
-        if(dataTypeSelect) try(WaldTest(simData1))
-      else try(tTestGLM(simData1))
+      if(enableROTS){
+        statistics0.1 <-
+          try(ROTS.stat(simdata = simData0.1, opt.para = optPara))
+        statistics0.2 <-
+          try(ROTS.stat(simdata = simData0.2, opt.para = optPara))
+        statistics1 <-
+          try(ROTS.stat(simdata = simData1, opt.para = optPara))
+      }
+      else{
+        statistics0.1 <-
+          if(NBdist) try(WaldTest(simData0.1))
+          else try(tTestGLM(simData0.1))
+        statistics0.2 <-
+          if(NBdist) try(WaldTest(simData0.2))
+        else try(tTestGLM(simData0.2))
+        statistics1 <-
+          if(NBdist) try(WaldTest(simData1))
+          else try(tTestGLM(simData1))
+      }
 
       # if error occurs, test statistics remain as 0
-      if (inherits(statistics0,"try-error")) {
-        statistics0 <- 0
+      if (inherits(statistics0.1,"try-error")) {
+        statistics0.1 <- 0
       }
-      if (inherits(statistics0,"try-error")) {
-        statistics1 <- 0
-      }
-      # try to calculate the test statistic
-      if(dataTypeSelect) {
-        data0 <- simData0$counts
-        data1 <- simData1$counts
-      }
-      else {
-        data0 <- simData0$abundance
-        data1 <- simData1$abundance
+      if (inherits(statistics0.2,"try-error")) {
+        statistics0.2 <- 0
       }
 
+      if (inherits(statistics1,"try-error")) {
+        statistics1 <- 0
+      }
+      statistics0 <-
+        max(statistics0.1, statistics0.2)
+      # zero statistics considered as error entry
+      # set both to zero to introduce penalty
+      if(statistics0==0) statistics1 <- 0
+
       # collection all the simulated counts and statistics
+      data0 <- ifelse(statistics0.1 >= statistics0.2,
+                      simData0.1$data,
+                      simData0.2$data)
+      data1 <- simData1$data
       res_data <- c(data0, data1, statistics0, statistics1)
       return(res_data)
       })
@@ -107,9 +145,11 @@
   if(saveResultData) {
     if(!("savedRData" %in% list.files())) dir.create("savedRData")
     # simulated data name indicates the basic information
-    filename.simulatedData <- RDataName(paste("simulated_Data","numRep",
-                                              simNumRep, "numSim",
-                                              ST, sep="_"))
+    filename.simulatedData <-
+    sprintf("simulated_Data_numRep_%s_numSim_%s_%s.RData",
+            paste(simNumRep, collapse ="_"),
+            simNumRep,
+            format(Sys.time(), "%H%M%S"))
     save(simulatedData, file=paste0(getwd(), "/savedRData/",
                                     filename.simulatedData))
     message(">> Data saved in directory savedRData.")

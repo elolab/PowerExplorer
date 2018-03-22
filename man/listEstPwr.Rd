@@ -20,7 +20,7 @@ to show power of a list of interested records.}
 a top list of power / power of a list of interested genes or proteins
 }
 \description{
-show a top-list of power in numerical order, 
+show a top-list of power in numerical order,
 or list the power selected genes/proteins.
 }
 \examples{

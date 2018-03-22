@@ -9,21 +9,21 @@ listPredPwr(PEObject, decreasing = TRUE, top = 20, selected = NA)
 \arguments{
 \item{PEObject}{the input PEObject.}
 
-\item{decreasing}{logical; TRUE, decreasing order; 
+\item{decreasing}{logical; TRUE, decreasing order;
 FALSE, increasing order.}
 
 \item{top}{the number of genes/proteins in the top list}
 
-\item{selected}{default as NA; 
+\item{selected}{default as NA;
 specify as a list of geneID or protein ID
 to show power of a list of interested records.}
 }
 \value{
-a top list of power / power of a list of interested 
+a top list of power / power of a list of interested
 genes or proteins for each sample size
 }
 \description{
-show a top-list of predicted power in numerical order, 
+show a top-list of predicted power in numerical order,
 or list the power selected genes/proteins.
 }
 \examples{

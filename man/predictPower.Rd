@@ -5,9 +5,10 @@
 \title{Estimate Power Under Increasing Sample Sizes}
 \usage{
 predictPower(inputObject, groupVec, isLogTransformed = FALSE,
-  dataType = c("RNASeq", "Proteomics"), minLFC = 0.5, rangeSimNumRep = NA,
-  alpha = 0.05, ST = 100, seed = 123, showSimProcess = FALSE,
-  saveResultData = FALSE)
+  dataType = c("RNASeq", "Proteomics"), enableROTS = FALSE,
+  paraROTS = list(B = 1000, K = NULL, paired = FALSE, a1 = NULL, a2 = NULL,
+  progress = FALSE), minLFC = 0.5, rangeSimNumRep = NA, alpha = 0.05,
+  ST = 100, seed = 123, showProcess = FALSE, saveResultData = FALSE)
 }
 \arguments{
 \item{inputObject}{a numeric raw Proteomics abundance data matrix,
@@ -15,11 +16,17 @@ in which rows correspond to proteins and columns correspond to samples.}
 
 \item{groupVec}{a vector indicating the grouping of samples}
 
-\item{isLogTransformed}{logical; if \code{TRUE}, input data will be used
-directly without further transformation}
+\item{isLogTransformed}{logical; logical; set to \code{TRUE},
+if the input data is log transformed.}
 
 \item{dataType}{"RNASeq" or "Proteomics" indictes the data type of
 the input data matrix.}
+
+\item{enableROTS}{logical; if \code{TRUE}, Reproducibility-Optimized
+Test Statistic (ROTS) will be used as the statistical model.}
+
+\item{paraROTS}{a \code{list} object containing addtional parameters 
+passed to ROTS (if enabled), see \link{ROTS}.}
 
 \item{minLFC}{LFC threshold}
 
@@ -33,7 +40,7 @@ repeated times of statistical test for each protein (>=100 recommended).}
 
 \item{seed}{an integer seed for the random number generator.}
 
-\item{showSimProcess}{logical; if \code{TRUE}, 
+\item{showProcess}{logical; if \code{TRUE},
 show the detailed information of
 each simulation, used for debugging only.}
 
@@ -61,20 +68,6 @@ groupVec <- exampleProteomicsData$groupVec
 predictedPower <- predictPower(dataMatrix, groupVec,
                                isLogTransformed=FALSE,
                                dataType="Proteomics",
-                               minLFC=0,
-                               rangeSimNumRep=c(5, 10, 15),
-                               alpha=0.05, ST=5, seed=123)
-# Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
-data(exampleRNASeqData)
-dataMatrix <- exampleRNASeqData$dataMatrix
-groupVec <- exampleRNASeqData$groupVec
-
-# Run estimation
-# Note: Simulation times(ST) is specified as 5 for shorter example runtime
-#       For better performence, ST > 50 is recommended
-predictedPower <- predictPower(dataMatrix, groupVec,
-                               isLogTransformed=FALSE,
-                               dataType="RNASeq",
                                minLFC=0,
                                rangeSimNumRep=c(5, 10, 15),
                                alpha=0.05, ST=5, seed=123)

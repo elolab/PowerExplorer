@@ -6,15 +6,17 @@
 \usage{
 estimatePower(inputObject, groupVec, isLogTransformed = FALSE,
   dataType = c("RNASeq", "Proteomics"), minLFC = 0.5, alpha = 0.05,
-  ST = 100, seed = 123, showSimProcess = FALSE, saveResultData = FALSE)
+  ST = 100, seed = 123, enableROTS = FALSE, paraROTS = list(B = 1000, K
+  = NULL, paired = FALSE, a1 = NULL, a2 = NULL, progress = FALSE),
+  showProcess = FALSE, saveResultData = FALSE)
 }
 \arguments{
 \item{inputObject}{a numeric raw data matrix or SummarizedExperiment object}
 
 \item{groupVec}{a vector indicating the grouping of samples}
 
-\item{isLogTransformed}{logical; if \code{TRUE},
-input data will be used directly without further transformation}
+\item{isLogTransformed}{logical; set to \code{TRUE},
+if the input data is log transformed.}
 
 \item{dataType}{"RNASeq" or "Proteomics"
 indictes the data type of the input data matrix.}
@@ -30,7 +32,14 @@ repeated times of statistical test for each entry (>=100 recommended).}
 
 \item{seed}{an integer seed for the random number generator.}
 
-\item{showSimProcess}{logical; if \code{TRUE}, show the detailed 
+\item{enableROTS}{logical; if \code{TRUE}, Reproducibility-Optimized
+Test Statistic (ROTS) will be used as the statistical model.
+used as the statistical model.}
+
+\item{paraROTS}{a \code{list} object containing addtional parameters 
+passed to ROTS (if enabled), see \link{ROTS}.}
+
+\item{showProcess}{logical; if \code{TRUE}, show the detailed
 information of each simulation, used for debugging only.}
 
 \item{saveResultData}{logical; if \code{TRUE},
@@ -48,8 +57,8 @@ in the entire dataset
 }
 \examples{
 # Example 1: a random generated Proteomics dataset (10 DE, 100 non-DE)
-# Note: Simulation times(ST) is specified as 10 for shorter example runtime
-#       For better performence, ST > 50 is recommended
+# Note: Simulation times(ST) is specified as 10 for shorter example runtime,
+# ST > 50 is recommended
 data(exampleProteomicsData)
 dataMatrix <- exampleProteomicsData$dataMatrix
 groupVec <- exampleProteomicsData$groupVec
@@ -58,36 +67,9 @@ groupVec <- exampleProteomicsData$groupVec
 resObject <- estimatePower(dataMatrix, groupVec,
                            dataType="Proteomics",
                            isLogTransformed=FALSE,
-                           minLFC=0, alpha=0.05, 
+                           minLFC=0, alpha=0.05,
                            ST=10, seed=123)
 
-# Run estimation with minLFC=1 (Fold Change=2)
-resObject2 <- estimatePower(dataMatrix, groupVec,
-                           dataType="Proteomics",
-                           isLogTransformed=FALSE,
-                           minLFC=1, alpha=0.05, 
-                           ST=10, seed=123)
-
-# Example 2: a random generated RNASeq dataset (10 DE, 100 non-DE)
-# Note: Simulation times(ST) is specified as 10 for shorter example runtime
-#       For better performence, ST > 50 is recommended
-data(exampleRNASeqData)
-dataMatrix <- exampleRNASeqData$dataMatrix
-groupVec <- exampleRNASeqData$groupVec
-
-# Run estimation without LFC filtration
-resObject <- estimatePower(dataMatrix, groupVec,
-                             dataType="RNASeq",
-                             isLogTransformed=FALSE,
-                             minLFC=0, alpha=0.05, 
-                             ST=10, seed=123)
-
-# Run estimation with minLFC=1 (Fold Change=2)
-resObject2 <- estimatePower(dataMatrix, groupVec,
-                            dataType="RNASeq",
-                            isLogTransformed=FALSE,
-                            minLFC=1, alpha=0.05, 
-                            ST=10, seed=123)
 
 
 }
