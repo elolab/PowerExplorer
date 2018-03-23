@@ -127,6 +127,7 @@ estimatePower <- function(inputObject, groupVec,
                                 minLFC = minLFC,
                                 paraROTS=paraROTS,
                                 seed = seed)
+  
   estimatedPower <- lapply(paraMatrices, function(eachParaMatrix) {
     cat("\nSimulation in process, it may take a few minutes...\n")
     comp_idx <- attributes(eachParaMatrix)$Comparison
@@ -134,6 +135,7 @@ estimatePower <- function(inputObject, groupVec,
     # start simulation and power estimation
     cat(sprintf("\nPower Estimation between groups %s:\n",
                 comp_idx))
+    set.seed(seed)
     simData <- simulateData(eachParaMatrix,
                             dataType=dataType,
                             isLogTransformed=isLogTransformed,
