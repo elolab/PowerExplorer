@@ -88,8 +88,8 @@ following parameters:
 "RNA-Seq".
 - `minLFC`: 0.5; the threshold of Log2 Fold Change, proteins with lower LFC 
 will be discarded.
-- `enableROTS`: TRUE; Use Reproducibility-Optimized Test Statistic (ROTS)
-as the statistical model.
+- `enableROTS`: FALSE; Not using Reproducibility-Optimized Test Statistic 
+(ROTS) as the statistical model.
 - `paraROTS`: the parameters to be passed to ROTS (if enabled).
 Check ROTS documentation for further details on the parameters.
 - `alpha`: 0.05; the controlled false positive (Type I Error) rate.
@@ -111,8 +111,8 @@ res <- estimatePower(inputObject = exampleProteomicsData$dataMatrix,
                      groupVec = exampleProteomicsData$groupVec,
                      isLogTransformed = FALSE,
                      dataType = "Proteomics",
-                     minLFC = 0,
-                     enableROTS = TRUE,
+                     minLFC = 0.5,
+                     enableROTS = FALSE,
                      paraROTS = list(B = 1000, K = NULL),
                      alpha = 0.05,
                      ST = 50,
