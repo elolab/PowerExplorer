@@ -16,7 +16,7 @@ biocViews:
     Coverage, 
     ChIPSeq
 Depends: 
-    R (>= 3.4.0), 
+    R (>= 3.5.0), 
     DESeq2,
     ROTS,
     vsn,

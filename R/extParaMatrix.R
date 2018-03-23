@@ -28,7 +28,7 @@ extParaMatrix <- function(dataMatrix, groupVec,
   numRep <- as.numeric(table(groupVec))
   numGroup <- length(numRep)
 
-  cat("Estimating distribution parameters...\n")
+  cat("[DESeq2] Estimating distribution parameters...\n")
   if(dataTypeSelect & !enableROTS) {
       # RNASeq raw counts and use DESeq2
       # construct a colData for DESeq2
@@ -57,8 +57,8 @@ extParaMatrix <- function(dataMatrix, groupVec,
   paraMatrices <- lapply(comp_index, function(x){
     g1 <- x[1]; g2 <- x[2]
     comp_idx <- paste0(groups[g1], ".vs.",groups[g2])
-
-    cat(sprintf("\n[%s] Log2 Fold Change Quantiles:\n", comp_idx))
+    cat(sprintf("\n  ------ <%s> ------  \n", comp_idx))
+    cat("\nLog2 Fold Change Quantiles:\n")
     show(round(quantile(abs(LFCRes[,comp_idx]),
                         probs=seq(0,1,0.1),
                         type=9),2))
@@ -75,19 +75,20 @@ extParaMatrix <- function(dataMatrix, groupVec,
       if(is.null(paraROTS[["progress"]]))
         paraROTS[["progress"]] <- FALSE
 
-      cat("[ROTS] Estimating statistics optimizing parameters...\n")
-      rots.res <- ROTS(data=dataMatrix,
-                       groups=rep(c(1,2), numRep[c(g1, g2)]),
-                       log=isLogTransformed,
-                       B=paraROTS[["B"]],
-                       K=paraROTS[["K"]],
-                       paired=paraROTS[["paired"]],
-                       a1=paraROTS[["a1"]],
-                       a2=paraROTS[["a2"]],
-                       progress=paraROTS[["progress"]],
-                       seed=seed)
+      cat("\n[ROTS] Estimating statistics optimizing parameters...\n")
+      rots.res <- suppressMessages(
+                    ROTS(data=dataMatrix,
+                    groups=rep(c(1,2), numRep[c(g1, g2)]),
+                    log=isLogTransformed,
+                    B=paraROTS[["B"]],
+                    K=paraROTS[["K"]],
+                    paired=paraROTS[["paired"]],
+                    a1=paraROTS[["a1"]],
+                    a2=paraROTS[["a2"]],
+                    progress=paraROTS[["progress"]],
+                    seed=seed))
       optPara <-  c(a1=rots.res$a1, a2=rots.res$a2)
-      message(sprintf("a1 = %s, a2 = %s \n",
+      cat(sprintf("[ROTS] optimization parameters:\na1 = %s, a2 = %s \n",
                       optPara[1], optPara[2]))
     }
 
@@ -120,12 +121,12 @@ extParaMatrix <- function(dataMatrix, groupVec,
       # apply filter
       paraMatrix <- paraMatrix[filter, ]
       if(dataTypeSelect) {
-        cat(sprintf("\n[%s] %s of %s genes are over minLFC threshold %s:\n",
-                    comp_idx, length(filter), length(abs.lfc), minLFC))
+        cat(sprintf("\n%s of %s genes are over minLFC threshold %s.\n",
+                    length(filter), length(abs.lfc), minLFC))
       }
       else{
-        cat(sprintf("\n[%s] %s of %s proteins are over minLFC threshold %s:\n",
-                    comp_idx, length(filter), length(abs.lfc), minLFC))
+        cat(sprintf("\n%s of %s proteins are over minLFC threshold %s.\n",
+                    length(filter), length(abs.lfc), minLFC))
       }
     }
     attr(paraMatrix, "Comparison") <- paste0(groups[x[1]], ".vs.",groups[x[2]])
