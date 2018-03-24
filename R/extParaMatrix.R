@@ -77,7 +77,7 @@ extParaMatrix <- function(dataMatrix, groupVec,
 
       cat("\n[ROTS] Estimating statistics optimizing parameters...\n")
       rots.res <- suppressMessages(
-                    ROTS(data=dataMatrix,
+                    ROTS(data=dataMatrix[,c(idx[[g1]], idx[[g2]])],
                     groups=rep(c(1,2), numRep[c(g1, g2)]),
                     log=isLogTransformed,
                     B=paraROTS[["B"]],
