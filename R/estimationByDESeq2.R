@@ -4,7 +4,8 @@
 # Last Modifed: 29th, Dec, 2017
 #' @import DESeq2
 #' 
-estimationByDESeq2 <- function(dataMatrix, colData) {
+estimationByDESeq2 <- function(dataMatrix, colData, 
+                               parallel=FALSE, BPPARAM=bpparam()) {
   # initialize DESeqDataSet
   dataMatrix[is.na(dataMatrix)] <- 0
   dds <- DESeqDataSetFromMatrix(countData=dataMatrix,
@@ -16,7 +17,8 @@ estimationByDESeq2 <- function(dataMatrix, colData) {
   dds <- DESeq(dds,
                fitType="parametric",
                test="Wald",
-               parallel=FALSE,
+               parallel=parallel,
+               BPPARAM = BPPARAM,
                quiet=TRUE)
   # Plot dispersion estimates
   # saveGeneDispPlot(dds)

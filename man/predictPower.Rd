@@ -8,7 +8,8 @@ predictPower(inputObject, groupVec, isLogTransformed = FALSE,
   dataType = c("RNASeq", "Proteomics"), enableROTS = FALSE,
   paraROTS = list(B = 1000, K = NULL, paired = FALSE, a1 = NULL, a2 = NULL,
   progress = FALSE), minLFC = 0.5, rangeSimNumRep = NA, alpha = 0.05,
-  ST = 100, seed = 123, showProcess = FALSE, saveResultData = FALSE)
+  ST = 100, seed = 123, parallel = FALSE, BPPARAM = bpparam(),
+  showProcess = FALSE, saveResultData = FALSE)
 }
 \arguments{
 \item{inputObject}{a numeric raw Proteomics abundance data matrix,
@@ -26,7 +27,7 @@ the input data matrix.}
 Test Statistic (ROTS) will be used as the statistical model.}
 
 \item{paraROTS}{a \code{list} object containing addtional parameters 
-passed to ROTS (if enabled), see \link{ROTS}.}
+passed to ROTS (if enabled), see \code{\link{ROTS}}.}
 
 \item{minLFC}{LFC threshold}
 
@@ -40,13 +41,20 @@ repeated times of statistical test for each protein (>=100 recommended).}
 
 \item{seed}{an integer seed for the random number generator.}
 
+\item{parallel}{logical; if \code{FALSE} parallelization is disabled;
+if \code{TRUE}, parallelize calculations using 
+\code{\link{BiocParallel}}.}
+
+\item{BPPARAM}{an optional argument object passed \code{\link{bplapply}}
+to indicate the registered cores, if \code{parallel=TRUE}.}
+
 \item{showProcess}{logical; if \code{TRUE},
 show the detailed information of
 each simulation, used for debugging only.}
 
 \item{saveResultData}{logical; if \code{TRUE}, save the simulated data
 into RData with name pattern
-"simulated_Data_numRep_X_numSim_XXX_XXXXX.RData"}
+"simulated_Data_numRep_X_numSim_XXX_XXXXX.RData".}
 }
 \value{
 a list of power predictions for each sample size, grouped in

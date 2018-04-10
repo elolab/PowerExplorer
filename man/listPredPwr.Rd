@@ -4,10 +4,10 @@
 \alias{listPredPwr}
 \title{List Predicted Power}
 \usage{
-listPredPwr(PEObject, decreasing = TRUE, top = 20, selected = NA)
+listPredPwr(inputObject, decreasing = TRUE, top = 20, selected = NA)
 }
 \arguments{
-\item{PEObject}{the input PEObject.}
+\item{inputObject}{the input inputObject.}
 
 \item{decreasing}{logical; TRUE, decreasing order;
 FALSE, increasing order.}
@@ -27,11 +27,11 @@ show a top-list of predicted power in numerical order,
 or list the power selected genes/proteins.
 }
 \examples{
-data(examplePEObject)
+data(exampleObject)
 # show 10 top proteins with high power (decreasing order)
-listPredPwr(examplePEObject, decreasing = TRUE, top = 10)
+listPredPwr(exampleObject, decreasing = TRUE, top = 10)
 
 # show a list of interested proteins
-listPredPwr(examplePEObject, selected = c("Protein_1", "Protein_11"))
+listPredPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
 
 }

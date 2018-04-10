@@ -1,28 +1,29 @@
 #' Plot A Summary of Estimated Power
 #' @description Produce a plot to summary the power estimated by function
-#' \code{estimatePower}, the plot function is called in
-#' \code{estimatePower}, but using it manually is possible
-#' @param PEObject a result container object \code{PEObject}
-#' returned from \code{estimatePower}.
+#' \code{\link{estimatePower}}, the plot function is called in
+#' \code{\link{estimatePower}}, but using it manually is possible
+#' @param inputObject a result container object 
+#' \code{\link{PowerExplorerStorage}} returned from 
+#' \code{\link{estimatePower}}.
 #' @return plot(s) of the summarised information on the estimated power
 #' @importFrom  data.table melt
 #' @import ggplot2
 #' @import gridExtra
 #' @export
 #' @examples
-#' data(examplePEObject)
-#' plotEstPwr(examplePEObject)
+#' data(exampleObject)
+#' plotEstPwr(exampleObject)
 #'
 # Author: Xu Qiao
 # Created: 30th, Oct, 2017
 # Last Modifed: 18th, Feb, 2018
 
-plotEstPwr <- function(PEObject) {
-  estimatedPower <- PEObject@estPwr
+plotEstPwr <- function(inputObject) {
+  estimatedPower <- estPwr(inputObject)
   if(is.null(nrow(estimatedPower)))
-    stop("Estimated power results not found in input PEObject!")
+    stop("Estimated power results not found in input inputObject!")
   #determine dataType
-  dataType <- PEObject@dataType
+  dataType <- parameters(inputObject)[["dataType"]]
   if(identical(dataType, "RNASeq")) {
     dataTypeSelect <- TRUE
   } else if(identical(dataType, "Proteomics")) {
@@ -77,7 +78,7 @@ plotEstPwr <- function(PEObject) {
     geom_boxplot() +
     ggtitle(label="Boxplot",
             subtitle=paste("minLFC threshold:",
-                           PEObject@minLFC)) +
+                           parameters(inputObject)[["minLFC"]])) +
     xlab("Comparison pair") + ylab("Power") +
     theme_light(base_size = 9)+
     theme(axis.text.x=element_text(angle=60, hjust=1),
@@ -90,7 +91,9 @@ plotEstPwr <- function(PEObject) {
                                      fill="power.level")) +
     geom_bar(stat="identity") +
     ggtitle(label="Barplot", subtitle=paste("minLFC threshold:",
-                                            PEObject@minLFC)) +
+                                            parameters(
+                                              inputObject
+                                              )[["minLFC"]])) +
     ylab(ifelse(dataTypeSelect,
                 "Num of genes above minLFC",
                 "Num of proteins above minLFC")) +
@@ -109,6 +112,6 @@ plotEstPwr <- function(PEObject) {
                sumTable,
                top="Estimated Power Summary",
                newpage=TRUE,
-               layout_matrix=matrix(c(1,2,3,3),
-                                    nrow=2, byrow=TRUE))
+               layout_matrix=matrix(c(1,2,1,2,3,3),
+                                    nrow=3, byrow=TRUE))
 }

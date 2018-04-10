@@ -4,10 +4,11 @@
 \alias{plotPredPwr}
 \title{Observe Predicted Power Within Different LFC Scales}
 \usage{
-plotPredPwr(PEObject, minLFC, maxLFC, LFCscale = 1)
+plotPredPwr(inputObject, minLFC, maxLFC, LFCscale = 1)
 }
 \arguments{
-\item{PEObject}{a result container object \code{PEObject}}
+\item{inputObject}{a result container object 
+\code{\link{PowerExplorerStorage}}}
 
 \item{minLFC}{default as 0, the left edge of the LFC range within
 which genes will be included in the graph.}
@@ -22,16 +23,16 @@ plot(s) of power density under multiple sample sizes
 }
 \description{
 With a complete power list and LFC list returned from
-\code{predictPower}, power estimates can be observed dynamically
+\code{\link{predictPower}}, power estimates can be observed dynamically
 within specified LFC ranges.
 }
 \examples{
 # load an example onject containing
 # predicted power under different sample sizes
-data(examplePEObject)
-plotPredPwr(examplePEObject)
-plotPredPwr(examplePEObject)
+data(exampleObject)
+plotPredPwr(exampleObject)
+plotPredPwr(exampleObject)
 #It is possible to observe power trend in different scales and ranges of LFCs
-plotPredPwr(examplePEObject, minLFC=0, maxLFC=2, LFCscale=0.5)
+plotPredPwr(exampleObject, minLFC=0, maxLFC=2, LFCscale=0.5)
 
 }

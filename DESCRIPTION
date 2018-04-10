@@ -16,7 +16,7 @@ biocViews:
     Coverage, 
     ChIPSeq
 Depends: 
-    R (>= 3.5.0), 
+    R (>= 3.4.0), 
     DESeq2,
     ROTS,
     vsn,
@@ -30,7 +30,8 @@ Imports:
     data.table,
     ggplot2,
     Biobase,
-    S4Vectors
+    S4Vectors,
+    BiocParallel
 Suggests: 
     knitr, 
     rmarkdown

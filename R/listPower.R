@@ -1,7 +1,7 @@
 #' List Estimated Power
 #' @description show a top-list of power in numerical order,
 #' or list the power selected genes/proteins.
-#' @param PEObject the input PEObject.
+#' @param inputObject the input inputObject.
 #' @param decreasing logical; TRUE, decreasing order; FALSE, increasing order.
 #' @param top the number of genes/proteins in the top list
 #' @param selected default as NA; specify as a list of geneID or protein ID
@@ -10,25 +10,32 @@
 #' @export
 #'
 #' @examples
-#' data(examplePEObject)
+#' data(exampleObject)
 #' # show 10 top proteins with high power (decreasing order)
-#' listEstPwr(examplePEObject, decreasing = TRUE, top = 10)
+#' listEstPwr(exampleObject, decreasing = TRUE, top = 10)
 #' # show a list of interested proteins
-#' listEstPwr(examplePEObject, selected = c("Protein_1", "Protein_11"))
+#' listEstPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
 #'
-listEstPwr <- function(PEObject, decreasing = TRUE,  top = 20,  selected = NA){
-  all.power <- data.frame(PEObject@estPwr, check.names = FALSE)
+listEstPwr <- function(inputObject, decreasing = TRUE,  top = 20,  selected = NA){
+  all.power <- data.frame(estPwr(inputObject), check.names = FALSE)
   result <- all.power[do.call(order, c(as.list(all.power),
                                        decreasing = decreasing)),,drop=FALSE]
   if(identical(selected, NA)) return(result[seq_len(top),, drop=FALSE])
-  return(result[selected,, drop=FALSE])
+  else{
+    if(FALSE %in% (selected %in% rownames(inputObject)))
+      stop(sprintf("ID %s not found in results.", 
+                   paste(selected[!selected %in% rownames(inputObject)],
+                         collapse = ", ")))
+    return(all.power[selected,, drop=FALSE ]) 
+  }
+  return(result)
 }
 
 
 #' List Predicted Power
 #' @description show a top-list of predicted power in numerical order,
 #' or list the power selected genes/proteins.
-#' @param PEObject the input PEObject.
+#' @param inputObject the input inputObject.
 #' @param decreasing logical; TRUE, decreasing order;
 #' FALSE, increasing order.
 #' @param top the number of genes/proteins in the top list
@@ -40,24 +47,30 @@ listEstPwr <- function(PEObject, decreasing = TRUE,  top = 20,  selected = NA){
 #' @export
 #'
 #' @examples
-#' data(examplePEObject)
+#' data(exampleObject)
 #' # show 10 top proteins with high power (decreasing order)
-#' listPredPwr(examplePEObject, decreasing = TRUE, top = 10)
+#' listPredPwr(exampleObject, decreasing = TRUE, top = 10)
 #'
 #' # show a list of interested proteins
-#' listPredPwr(examplePEObject, selected = c("Protein_1", "Protein_11"))
+#' listPredPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
 #'
-listPredPwr <- function(PEObject, 
+listPredPwr <- function(inputObject, 
                         decreasing = TRUE, 
                         top = 20, 
                         selected = NA){
-  result <- lapply(PEObject@predPwr, function(x) {
+  result <- lapply(predPwr(inputObject), function(x) {
     temp <- data.frame(x, check.names = FALSE)
     temp <- temp[do.call(order, c(as.list(temp), 
                                   decreasing = TRUE)),,drop=FALSE]
 
     if(identical(selected, NA)) return(temp[seq_len(top),, drop=FALSE])
-    return(temp[selected,, drop=FALSE ])
+    else{
+      if(FALSE %in% (selected %in% rownames(inputObject)))
+        stop(sprintf("ID %s not found in results.", 
+             paste(selected[!selected %in% rownames(inputObject)],
+             collapse = ", ")))
+      return(temp[selected,, drop=FALSE ]) 
+    }
   })
   return(result)
 }

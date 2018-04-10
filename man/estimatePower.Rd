@@ -8,7 +8,8 @@ estimatePower(inputObject, groupVec, isLogTransformed = FALSE,
   dataType = c("RNASeq", "Proteomics"), minLFC = 0.5, alpha = 0.05,
   ST = 100, seed = 123, enableROTS = FALSE, paraROTS = list(B = 1000, K
   = NULL, paired = FALSE, a1 = NULL, a2 = NULL, progress = FALSE),
-  showProcess = FALSE, saveResultData = FALSE)
+  showProcess = FALSE, saveResultData = FALSE, parallel = FALSE,
+  BPPARAM = bpparam())
 }
 \arguments{
 \item{inputObject}{a numeric raw data matrix or SummarizedExperiment object}
@@ -37,7 +38,7 @@ Test Statistic (ROTS) will be used as the statistical model.
 used as the statistical model.}
 
 \item{paraROTS}{a \code{list} object containing addtional parameters 
-passed to ROTS (if enabled), see \link{ROTS}.}
+passed to ROTS (if enabled), see \code{\link{ROTS}}.}
 
 \item{showProcess}{logical; if \code{TRUE}, show the detailed
 information of each simulation, used for debugging only.}
@@ -45,6 +46,13 @@ information of each simulation, used for debugging only.}
 \item{saveResultData}{logical; if \code{TRUE},
 save the simulated data into RData with name pattern
 "simulated_Data_numRep_X_numSim_XXX_XXXXX.RData"}
+
+\item{parallel}{logical; if \code{FALSE} parallelization is disabled;
+if \code{TRUE}, parallelize calculations using 
+\code{\link{BiocParallel}}.}
+
+\item{BPPARAM}{an optional argument object passed \code{\link{bplapply}} 
+to indicate the registered cores, if \code{parallel=TRUE}.}
 }
 \value{
 a list of power estimates grouped in comparisons

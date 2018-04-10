@@ -18,13 +18,18 @@
 #' @param enableROTS logical; if \code{TRUE}, Reproducibility-Optimized
 #' Test Statistic (ROTS) will be used as the statistical model.
 #' @param paraROTS a \code{list} object containing addtional parameters 
-#' passed to ROTS (if enabled), see \link{ROTS}.
+#' passed to ROTS (if enabled), see \code{\link{ROTS}}.
+#' @param parallel logical; if \code{FALSE} parallelization is disabled;
+#' if \code{TRUE}, parallelize calculations using 
+#' \code{\link{BiocParallel}}.
+#' @param BPPARAM an optional argument object passed \code{\link{bplapply}}
+#' to indicate the registered cores, if \code{parallel=TRUE}.
 #' @param showProcess logical; if \code{TRUE},
 #' show the detailed information of
 #' each simulation, used for debugging only.
 #' @param saveResultData logical; if \code{TRUE}, save the simulated data
 #' into RData with name pattern
-#' "simulated_Data_numRep_X_numSim_XXX_XXXXX.RData"
+#' "simulated_Data_numRep_X_numSim_XXX_XXXXX.RData".
 #' @return a list of power predictions for each sample size, grouped in
 #' comparisons between each two groups
 #' @seealso \code{\link{estimatePower}} estimate power based on
@@ -66,16 +71,18 @@ predictPower <- function(inputObject, groupVec,
                          minLFC = 0.5,
                          rangeSimNumRep=NA,
                          alpha=0.05, ST=100, seed=123,
+                         parallel=FALSE, 
+                         BPPARAM=bpparam(),
                          showProcess=FALSE,
                          saveResultData=FALSE) {
   dataMatrix <- switch (class(inputObject),
-                        RangedSummarizedExperiment = assays(inputObject)$counts,
-                        SummarizedExperiment = assays(inputObject)$counts,
+                        RangedSummarizedExperiment = assay(inputObject),
+                        SummarizedExperiment = assay(inputObject),
                         ExpressionSet = Biobase::exprs(inputObject),
-                        PEObject = {
-                          if(dataType != inputObject@dataType)
+                        PowerExplorerStorage = {
+                          if(dataType != parameters(inputObject)[["dataType"]])
                             stop("Incorrect data type.")
-                          assays(inputObject)$counts},
+                          assay(inputObject)},
                         as.matrix(inputObject)
   )
   # determine dataType
@@ -88,11 +95,13 @@ predictPower <- function(inputObject, groupVec,
   numGroup <- length(unique(groupVec))
   timestamp()
   cat("Sample groups:\t", paste(unique(groupVec), collapse=", "),
-      "\nNum. of replicates:\t", paste(rangeSimNumRep, collapse=", "),
+      "\nReplicates of prediction:\t", paste(rangeSimNumRep, collapse=", "),
       "\nNum. of simulations:\t", ST,
       "\nMin. Log Fold Change:\t", minLFC,
       "\nFalse Postive Rate:\t", alpha,
       "\nTransformed:\t", isLogTransformed,
+      "\nROTS enabled:\t\t\t", enableROTS,
+      "\nParallel:\t\t\t", parallel,
       "\n\n")
 
   # remove entries with too many zero counts
@@ -119,7 +128,9 @@ predictPower <- function(inputObject, groupVec,
                                 dataType=dataType,
                                 minLFC=minLFC,
                                 paraROTS=paraROTS,
-                                seed=seed)
+                                seed=seed,
+                                parallel=parallel, 
+                                BPPARAM=BPPARAM)
 
   predictedPower <- lapply(rangeSimNumRep, function(eachRepNum) {
     cat(
@@ -135,14 +146,32 @@ predictPower <- function(inputObject, groupVec,
       # start simulation and power estimation
       cat(sprintf("\n[repNum:%s] Power Estimation between groups %s:\n",
                   eachRepNum, comp_idx))
-      simData <- simulateData(eachParaMatrix,
-                              dataType=dataType,
-                              enableROTS=enableROTS,
-                              simNumRep=c(eachRepNum, eachRepNum),
-                              minLFC=minLFC,
-                              ST=ST,
-                              showProcess=showProcess,
-                              saveResultData=saveResultData)
+      simData <- 
+        if(!parallel){
+          simulateData(eachParaMatrix,
+                       dataType=dataType,
+                       enableROTS=enableROTS,
+                       simNumRep=c(eachRepNum, eachRepNum),
+                       minLFC=minLFC,
+                       ST=ST,
+                       showProcess=showProcess,
+                       saveResultData=saveResultData) 
+        }else{
+          nCores <- BPPARAM$workers
+          idxCore <- factor(sort(rep(seq_len(nCores),length=ST)))
+          cat(sprintf("parallelising simulations to %s workers\n", nCores))
+          do.call(c, bplapply(levels(idxCore), function(i) {
+            simulateData(eachParaMatrix,
+                         dataType=dataType,
+                         isLogTransformed=isLogTransformed,
+                         enableROTS=enableROTS,
+                         simNumRep=c(eachRepNum, eachRepNum),
+                         minLFC=minLFC,
+                         ST=sum(idxCore==i),
+                         showProcess=FALSE,
+                         saveResultData=saveResultData)
+          }, BPPARAM=BPPARAM))
+        }
 
       powerest <- calPwr(simData, alpha=0.05,
                          dataType=dataType,
@@ -159,8 +188,9 @@ predictPower <- function(inputObject, groupVec,
 
   switch (class(inputObject),
           SummarizedExperiment = {
-            SE <- inputObject},
-          PEObject = {
+            SE <- inputObject
+            },
+          PowerExplorerStorage = {
             SE <- inputObject
           },
           {
@@ -174,14 +204,19 @@ predictPower <- function(inputObject, groupVec,
           }
   )
 
-  resObject <- new("PEObject", SE, groupVec=groupVec,
+  resObject <- new("PowerExplorerStorage", SE, 
+                   groupVec=groupVec,
                    LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes,
                                                check.names = FALSE),
-                   minLFC=minLFC,
-                   alpha=alpha,
-                   ST=ST,
-                   dataType=dataType,
-                   simRepNumber=rangeSimNumRep,
+                   parameters = list(
+                     minLFC=minLFC,
+                     alpha=alpha,
+                     ST=ST,
+                     dataType=dataType,
+                     simRepNumber=rangeSimNumRep,
+                     isLogTransformed=isLogTransformed,
+                     enableROTS=enableROTS
+                   ),
                    predPwr=predictedPower)
   if(saveResultData){
     if(!("savedRData" %in% list.files())) dir.create("savedRData")

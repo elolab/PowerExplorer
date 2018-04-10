@@ -4,22 +4,23 @@
 \alias{plotEstPwr}
 \title{Plot A Summary of Estimated Power}
 \usage{
-plotEstPwr(PEObject)
+plotEstPwr(inputObject)
 }
 \arguments{
-\item{PEObject}{a result container object \code{PEObject}
-returned from \code{estimatePower}.}
+\item{inputObject}{a result container object 
+\code{\link{PowerExplorerStorage}} returned from 
+\code{\link{estimatePower}}.}
 }
 \value{
 plot(s) of the summarised information on the estimated power
 }
 \description{
 Produce a plot to summary the power estimated by function
-\code{estimatePower}, the plot function is called in
-\code{estimatePower}, but using it manually is possible
+\code{\link{estimatePower}}, the plot function is called in
+\code{\link{estimatePower}}, but using it manually is possible
 }
 \examples{
-data(examplePEObject)
-plotEstPwr(examplePEObject)
+data(exampleObject)
+plotEstPwr(exampleObject)
 
 }

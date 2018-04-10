@@ -19,12 +19,17 @@
 #' Test Statistic (ROTS) will be used as the statistical model.
 #' used as the statistical model.
 #' @param paraROTS a \code{list} object containing addtional parameters 
-#' passed to ROTS (if enabled), see \link{ROTS}.
+#' passed to ROTS (if enabled), see \code{\link{ROTS}}.
 #' @param showProcess logical; if \code{TRUE}, show the detailed
 #' information of each simulation, used for debugging only.
 #' @param saveResultData logical; if \code{TRUE},
 #' save the simulated data into RData with name pattern
 #' "simulated_Data_numRep_X_numSim_XXX_XXXXX.RData"
+#' @param parallel logical; if \code{FALSE} parallelization is disabled;
+#' if \code{TRUE}, parallelize calculations using 
+#' \code{\link{BiocParallel}}.
+#' @param BPPARAM an optional argument object passed \code{\link{bplapply}} 
+#' to indicate the registered cores, if \code{parallel=TRUE}.
 #' @return a list of power estimates grouped in comparisons
 #' between each two groups
 #' @seealso \code{\link{predictPower}}
@@ -33,6 +38,7 @@
 #' @import utils
 #' @import methods
 #' @import SummarizedExperiment
+#' @import BiocParallel
 #' @importFrom Biobase exprs
 #' @importFrom S4Vectors DataFrame
 #' @examples
@@ -68,7 +74,9 @@ estimatePower <- function(inputObject, groupVec,
                                         a2=NULL,
                                         progress=FALSE),
                           showProcess=FALSE,
-                          saveResultData=FALSE) {
+                          saveResultData=FALSE,
+                          parallel=FALSE,
+                          BPPARAM=bpparam()) {
   if(missing(dataType) & length(dataType)!=1)
     stop("Please tell the data type of the input.")
   # determine dataType
@@ -78,13 +86,13 @@ estimatePower <- function(inputObject, groupVec,
                             stop("Incorrect dataType."))
 
   dataMatrix <- switch (class(inputObject),
-                        RangedSummarizedExperiment = assays(inputObject)$counts,
-                        SummarizedExperiment = assays(inputObject)$counts,
+                        RangedSummarizedExperiment = assay(inputObject),
+                        SummarizedExperiment = assay(inputObject),
                         ExpressionSet = Biobase::exprs(inputObject),
-                        PEObject = {
-                          if(dataType != inputObject@dataType)
+                        PowerExplorerStorage = {
+                          if(dataType != parameters(inputObject)[["dataType"]])
                             stop("Incorrect data type.")
-                          assays(inputObject)$counts},
+                          assay(inputObject)},
                         as.matrix(inputObject)
   )
   # determine input group and replicate numbers
@@ -100,6 +108,7 @@ estimatePower <- function(inputObject, groupVec,
       "\nFalse Postive Rate:\t\t", alpha,
       "\nLog-transformed:\t\t", isLogTransformed,
       "\nROTS enabled:\t\t\t", enableROTS,
+      "\nParallel:\t\t\t", parallel,
       "\n\n")
 
   # remove entries with too many zero counts
@@ -126,8 +135,9 @@ estimatePower <- function(inputObject, groupVec,
                                 dataType = dataType,
                                 minLFC = minLFC,
                                 paraROTS=paraROTS,
-                                seed = seed)
-  
+                                seed = seed, 
+                                parallel=parallel, 
+                                BPPARAM=BPPARAM)
   estimatedPower <- lapply(paraMatrices, function(eachParaMatrix) {
     cat("\nSimulation in process, it may take a few minutes...\n")
     comp_idx <- attributes(eachParaMatrix)$Comparison
@@ -135,17 +145,35 @@ estimatePower <- function(inputObject, groupVec,
     # start simulation and power estimation
     cat(sprintf("\nPower Estimation between groups %s:\n",
                 comp_idx))
-    set.seed(seed)
-    simData <- simulateData(eachParaMatrix,
-                            dataType=dataType,
-                            isLogTransformed=isLogTransformed,
-                            enableROTS=enableROTS,
-                            simNumRep=repNumVec,
-                            minLFC=minLFC,
-                            ST=ST,
-                            showProcess=showProcess,
-                            saveResultData=saveResultData)
-
+    set.seed(seed, kind = "L'Ecuyer-CMRG")
+    simData <- 
+    if(!parallel){
+      simulateData(eachParaMatrix,
+                    dataType=dataType,
+                    isLogTransformed=isLogTransformed,
+                    enableROTS=enableROTS,
+                    simNumRep=repNumVec,
+                    minLFC=minLFC,
+                    ST=ST,
+                    showProcess=showProcess,
+                    saveResultData=saveResultData)
+    }else{
+      nCores <- BPPARAM$workers
+      idxCore <- factor(sort(rep(seq_len(nCores),length=ST)))
+      cat(sprintf("parallelising simulations to %s workers\n", nCores))
+      do.call(c, bplapply(levels(idxCore), function(i) {
+        simulateData(eachParaMatrix,
+                     dataType=dataType,
+                     isLogTransformed=isLogTransformed,
+                     enableROTS=enableROTS,
+                     simNumRep=repNumVec,
+                     minLFC=minLFC,
+                     ST=sum(idxCore==i),
+                     showProcess=FALSE,
+                     saveResultData=saveResultData)
+      }, BPPARAM=BPPARAM))
+    }
+    
     powerest <- calPwr(simData, alpha=0.05,
                        dataType=dataType,
                        saveResultData=FALSE,
@@ -159,7 +187,7 @@ estimatePower <- function(inputObject, groupVec,
 switch (class(inputObject),
     SummarizedExperiment = {
       SE <- inputObject},
-    PEObject = {
+    PowerExplorerStorage = {
       SE <- inputObject
     },
     {
@@ -173,14 +201,19 @@ switch (class(inputObject),
     }
   )
 
-  resObject <- new("PEObject", SE, groupVec=groupVec,
+  resObject <- new("PowerExplorerStorage", SE, 
+                  groupVec=groupVec,
                   LFCRes=S4Vectors::DataFrame(attributes(paraMatrices)$LFCRes,
                                               check.names = FALSE),
-                  minLFC=minLFC,
-                  alpha=alpha,
-                  ST=ST,
-                  dataType=dataType,
-                  simRepNumber=numRep,
+                  parameters = list(
+                    minLFC=minLFC,
+                    alpha=alpha,
+                    ST=ST,
+                    dataType=dataType,
+                    simRepNumber=numRep,
+                    isLogTransformed=isLogTransformed,
+                    enableROTS=enableROTS
+                  ),
                   estPwr=S4Vectors::DataFrame(estimatedPower,
                                               check.names = FALSE))
 

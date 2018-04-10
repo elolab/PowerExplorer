@@ -118,7 +118,8 @@ res <- estimatePower(inputObject = exampleProteomicsData$dataMatrix,
                      ST = 50,
                      seed = 345, 
                      showProcess = FALSE, 
-                     saveResultData = FALSE)
+                     saveResultData = FALSE
+                     )
 ```
 
 
@@ -144,7 +145,7 @@ in a numerical way with the same information shown in the previous two plots.
 
 ## Result Summary
 
-With the result `PEObject` object, summarized information can be shown by
+With the result `PowerExplorerStorage` object, summarized information can be shown by
 `show` method.
 ```{r}
 res
@@ -153,25 +154,27 @@ res
 If interested in specific genes/proteins or a ranking list, one can use 
 `listEstPwr` with the following parameters:
 
-- `PEObject`: A PEObject returned from PowerExplorer as input
+- `inputObject`: A PowerExplorerStorage returned from PowerExplorer as input
 - `decreasing`: logical; TRUE, decreasing order; FALSE, increasing order.
 - `top`: numeric; the number of genes/proteins in the top list
 - `selected`: default as NA; specify as a list of geneID or protein ID 
 to show power of a list of interested genes/proteins.
 
-To show the top 10 proteins in an example result object `examplePEObject`
+To show the top 10 proteins in an example result object `exampleObject`
 in decreasing order:
 
 ```{r}
-data(examplePEObject)
-listEstPwr(examplePEObject, decreasing = TRUE, top = 10)
+data(exampleObject)
+listEstPwr(exampleObject, decreasing = TRUE, top = 10)
 ```
 
 To show the results of specific proteins:
 
 ```{r}
-listEstPwr(examplePEObject, 
-           selected = c("P00424", "P53219", "P00167ups", "Q06830ups"))
+listEstPwr(exampleObject, 
+           selected = c("ENSMUSG00000000303", 
+                         "ENSMUSG00000087272", 
+                         "ENSMUSG00000089921"))
 ```
 
 \newpage
@@ -193,8 +196,10 @@ res <- predictPower(inputObject = res,
                     groupVec = exampleProteomicsData$groupVec,
                     isLogTransformed = FALSE,
                     dataType = "Proteomics",
-                    rangeSimNumRep = c(5, 10, 15, 20),
                     minLFC = 0.5,
+                    rangeSimNumRep = c(5, 10, 15, 20),
+                    enableROTS = TRUE,
+                    paraROTS = list(B = 1000, K = NULL),
                     alpha = 0.05,
                     ST = 50,
                     seed = 345)
@@ -208,7 +213,7 @@ The predicted results can be summaried using `plotPredPwr`. The input should be
 the predicted power object returned from `predictPower`, the summary can be
 optionally visualized by setting the following parameters:
 
-- `PEObject`: A PEObject returned from PowerExplorer as input
+- `inputObject`: A PowerExplorerStorage returned from PowerExplorer as input
 - `minLFC` and `maxLFC`: to observe power in a specific range of LFC
 - `LFCscale`: to determine the LFC scale of the observation
 
@@ -236,7 +241,7 @@ as expected.
 
 ## Result Summary
 
-With the result `PEObject` object, summarized information can be shown by
+With the result `PowerExplorerStorage` object, summarized information can be shown by
 `show` method. Both estimated and predicted results can be summaried.
 ```{r}
 res
@@ -246,22 +251,41 @@ If interested in specific genes/proteins or a ranking list of predicted
 powerat each sample size, one can use `listPrePwr` with the following 
 parameters:
 
-- `PEObject`: A PEObject returned from PowerExplorer as input
+- `inputObject`: A PowerExplorerStorage returned from PowerExplorer as input
 - `decreasing`: logical; TRUE, decreasing order; FALSE, increasing order.
 - `top`: numeric; the number of genes/proteins in the top list
 - `selected`: default as NA; specify as a list of geneID or protein ID 
 to show power of a list of interested genes/proteins.
 
-To show the top 10 genes in an example result object `examplePEObject`
+To show the top 10 genes in an example result object `exampleObject`
 in decreasing order at each sample size:
 
 ```{r}
-listPredPwr(examplePEObject, decreasing = TRUE, top = 10)
+listPredPwr(exampleObject, decreasing = TRUE, top = 10)
 ```
 
 To show the results of specific genes at each sample size:
 
 ```{r}
-listPredPwr(examplePEObject, 
-            selected = c("P00424", "P00167ups", "Q06830ups"))
+listPredPwr(exampleObject, 
+            selected = c("ENSMUSG00000000303", 
+                         "ENSMUSG00000087272", 
+                         "ENSMUSG00000089921"))
 ```
+
+# Parallel computation
+
+The calculation may take much longer time when an input dataset contains more than 
+thousands of features, especially for the power prediction process. 
+The computational time can be significantly shortened by using parallelised 
+computation, and the simulations will be distributed to multiple cores. 
+This can be done by loading Bioconductor pacakge BiocParallel and then set the 
+following arguments of `estimatePower` and `predictPower`: 
+`parallel=TRUE` and `BPPARAM=bpparam()`.
+This will distribute the jobs to all the available cores.
+One can register the number of cores to be used by 
+setting `BPPARAM=MulticoreParam(4)`,
+for instance, distributing simulations (jobs) to 4 cores. 
+However, `MulticoreParam()` only supports non-Windows platforms. 
+For Windows platforms, one can use `SnowParam()` instead. For further details,
+please check the BiocParallel documentation.

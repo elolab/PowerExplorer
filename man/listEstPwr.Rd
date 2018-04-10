@@ -4,10 +4,10 @@
 \alias{listEstPwr}
 \title{List Estimated Power}
 \usage{
-listEstPwr(PEObject, decreasing = TRUE, top = 20, selected = NA)
+listEstPwr(inputObject, decreasing = TRUE, top = 20, selected = NA)
 }
 \arguments{
-\item{PEObject}{the input PEObject.}
+\item{inputObject}{the input inputObject.}
 
 \item{decreasing}{logical; TRUE, decreasing order; FALSE, increasing order.}
 
@@ -24,10 +24,10 @@ show a top-list of power in numerical order,
 or list the power selected genes/proteins.
 }
 \examples{
-data(examplePEObject)
+data(exampleObject)
 # show 10 top proteins with high power (decreasing order)
-listEstPwr(examplePEObject, decreasing = TRUE, top = 10)
+listEstPwr(exampleObject, decreasing = TRUE, top = 10)
 # show a list of interested proteins
-listEstPwr(examplePEObject, selected = c("Protein_1", "Protein_11"))
+listEstPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
 
 }

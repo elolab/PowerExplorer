@@ -13,13 +13,15 @@ extParaMatrix <- function(dataMatrix, groupVec,
                                         a1=NULL,
                                         a2=NULL,
                                         progress=FALSE),
-                          seed=123){
+                          seed=123,
+                          parallel=FALSE, 
+                          BPPARAM=bpparam()){
   # determine dataType
   dataTypeSelect <- switch (dataType,
                             RNASeq=TRUE,
                             Proteomics=FALSE,
                             stop("Incorrect dataType."))
-  set.seed(seed)
+  set.seed(seed, kind = "L'Ecuyer-CMRG")
   if(length(groupVec) != ncol(dataMatrix))
     stop("groupVec and sample number vary in length.")
   # determine input group and replicate numbers
@@ -28,12 +30,12 @@ extParaMatrix <- function(dataMatrix, groupVec,
   numRep <- as.numeric(table(groupVec))
   numGroup <- length(numRep)
 
-  cat("[DESeq2] Estimating distribution parameters...\n")
   if(dataTypeSelect & !enableROTS) {
+      cat("[DESeq2] Estimating distribution parameters...\n")
       # RNASeq raw counts and use DESeq2
       # construct a colData for DESeq2
       colData <- data.frame(group=groupVec, row.names=colnames(dataMatrix))
-      res <- estimationByDESeq2(dataMatrix, colData)
+      res <- estimationByDESeq2(dataMatrix, colData, parallel=parallel, BPPARAM=BPPARAM)
       dispersion <- res$dispersion
       LFCRes <- res$LFCRes
       dataMatrix <- res$normCounts

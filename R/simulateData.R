@@ -34,15 +34,14 @@
   if(enableROTS)
     optPara <- attributes(paraMatrix)$optPara
 
-  simulatedData <- lapply(seq_len(ST),
-                         function(x){
+  simulatedData <- lapply(seq_len(ST), function(simIdx){
       if(showProcess){
-        percent <- x*100 / ST
-        text <- sprintf("%s of %s simulations", x, ST)
+        percent <- simIdx*100 / ST
+        text <- sprintf("%s of %s simulations", simIdx, ST)
         cat(sprintf(paste0('\r>> [%-50s] %s '),
                     paste(rep('=', percent / 2), collapse=''),
                     text))
-        if (x == ST)
+        if (simIdx == ST)
           cat('\n')
       }
       tempMatrix <- apply(paraMatrix, 1, function(x) {
@@ -50,17 +49,6 @@
         para0_0 <- x[1]; para0_1 <- x[3]
         para1_0 <- x[2]; para1_1 <- x[4]
         numMiss0 <- x[5]; numMiss1 <- x[6]
-        # Show Progress Details - show each distribution under simulation
-
-        # distName <- ifelse(dataTypeSelect&!isLogTransformed,"NB","N")
-        # if(showProcess == TRUE)
-        #   message(sprintf(">> Distributions: %s(%s, %s)\tand\t %s(%s, %s)",
-        #                   distName,
-        #                   round(para0_0,2),
-        #                   round(para1_0,2),
-        #                   distName,
-        #                   round(para0_1,2),
-        #                   round(para1_1,2)))
 
       # simulate data for each gene/protein
       # null hypohesis: two groups should follow the same distribution
@@ -137,7 +125,6 @@
       })
       return(tempMatrix)
   })
-  # stopCluster(cl)
   # record the attributes
   attr(simulatedData, "dataType") <- dataType
   attr(simulatedData, "repNum") <- simNumRep
