@@ -25,9 +25,12 @@ or list the power selected genes/proteins.
 }
 \examples{
 data(exampleObject)
-# show 10 top proteins with high power (decreasing order)
+# show 10 top genes with high power (decreasing order)
 listEstPwr(exampleObject, decreasing = TRUE, top = 10)
-# show a list of interested proteins
-listEstPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
+# show a list of interested genes
+listEstPwr(exampleObject, 
+            selected = c("ENSMUSG00000000303", 
+                         "ENSMUSG00000087272", 
+                         "ENSMUSG00000089921"))
 
 }

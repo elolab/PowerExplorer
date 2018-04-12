@@ -11,10 +11,13 @@
 #'
 #' @examples
 #' data(exampleObject)
-#' # show 10 top proteins with high power (decreasing order)
+#' # show 10 top genes with high power (decreasing order)
 #' listEstPwr(exampleObject, decreasing = TRUE, top = 10)
-#' # show a list of interested proteins
-#' listEstPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
+#' # show a list of interested genes
+#' listEstPwr(exampleObject, 
+#'             selected = c("ENSMUSG00000000303", 
+#'                          "ENSMUSG00000087272", 
+#'                          "ENSMUSG00000089921"))
 #'
 listEstPwr <- function(inputObject, decreasing = TRUE,  top = 20,  selected = NA){
   all.power <- data.frame(estPwr(inputObject), check.names = FALSE)
@@ -48,11 +51,14 @@ listEstPwr <- function(inputObject, decreasing = TRUE,  top = 20,  selected = NA
 #'
 #' @examples
 #' data(exampleObject)
-#' # show 10 top proteins with high power (decreasing order)
+#' # show 10 top genes with high power (decreasing order)
 #' listPredPwr(exampleObject, decreasing = TRUE, top = 10)
 #'
-#' # show a list of interested proteins
-#' listPredPwr(exampleObject, selected = c("Protein_1", "Protein_11"))
+#' # show a list of interested genes
+#' listPredPwr(exampleObject, 
+#'             selected = c("ENSMUSG00000000303", 
+#'                          "ENSMUSG00000087272", 
+#'                          "ENSMUSG00000089921"))
 #'
 listPredPwr <- function(inputObject, 
                         decreasing = TRUE, 

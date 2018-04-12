@@ -160,7 +160,7 @@ If interested in specific genes/proteins or a ranking list, one can use
 - `selected`: default as NA; specify as a list of geneID or protein ID 
 to show power of a list of interested genes/proteins.
 
-To show the top 10 proteins in an example result object `exampleObject`
+To show the top 10 genes in an example result object `exampleObject`
 in decreasing order:
 
 ```{r}
@@ -168,7 +168,7 @@ data(exampleObject)
 listEstPwr(exampleObject, decreasing = TRUE, top = 10)
 ```
 
-To show the results of specific proteins:
+To show the results of specific genes:
 
 ```{r}
 listEstPwr(exampleObject, 
