@@ -1,9 +1,9 @@
 Package: PowerExplorer
 Title: Power Estimation Tool for RNA-Seq and proteomics data
-Version: 0.99.19
+Version: 0.99.20
 Authors@R: c(person("Xu", "Qiao", role=c("aut","cre"), email="xu.qiao@utu.fi"),
              person("Laura", "Elo", role=c("cph"), email="laura.elo@utu.fi"))
-URL: https://github.com/xuqiao93/PowerExplorer
+URL: https://gitlab.utu.fi/CompBioMedNGSTools/PowerExplorer
 Description: Estimate and predict power among groups and multiple sample sizes 
     with simulated data, the simulations are operated based on distribution parameters 
     estimated from the provided input dataset.
@@ -17,11 +17,11 @@ biocViews:
     ChIPSeq
 Depends: 
     R (>= 3.5.0), 
+    SummarizedExperiment
+Imports: 
     DESeq2,
     ROTS,
     vsn,
-    SummarizedExperiment
-Imports: 
     stats, 
     utils, 
     methods, 

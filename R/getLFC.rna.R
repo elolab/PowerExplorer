@@ -3,6 +3,7 @@
 # Author: Xu Qiao
 # Created: 19th, Sep, 2017
 # Last Modifed: 19th, Dec, 2017
+#' @import DESeq2
 
 getLFC.rna <- function(dds) {
   coldata <- colData(dds) 
