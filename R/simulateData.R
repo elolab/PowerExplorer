@@ -48,7 +48,8 @@
         # extract parameters: para0 - mean, para1 - dispersion/sd
         para0_0 <- x[1]; para0_1 <- x[3]
         para1_0 <- x[2]; para1_1 <- x[4]
-        numMiss0 <- x[5]; numMiss1 <- x[6]
+        numMiss0 <- floor(x[5]*simNumRep[1])
+        numMiss1 <- floor(x[6]*simNumRep[2])
       # simulate data for each gene/protein
       # null hypohesis: two groups should follow the same distribution
         NBdist <- dataTypeSelect & !isLogTransformed

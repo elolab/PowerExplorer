@@ -132,11 +132,11 @@ extParaMatrix <- function(dataMatrix, groupVec,
       colnames(paraMatrix) <-
         c("mean.g1", "sd.g1", "mean.g2", "sd.g2")
     }
-    # record number of missing values
+    # record ratio of missing values
     numMiss.g1 <- apply(data.case.g1, 1,
-                        function(x) sum(is.na(x)))
+                        function(x) round(mean(is.na(x)),2))
     numMiss.g2 <- apply(data.case.g2, 1,
-                        function(x) sum(is.na(x)))
+                        function(x) round(mean(is.na(x)),2))
     paraMatrix <- cbind(paraMatrix, numMiss.g1, numMiss.g2)
 
     # LFC filter
