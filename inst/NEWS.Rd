@@ -13,7 +13,7 @@ The review version.}
 The release version.}
 }
 
-\section{Version 1.0.1}{\itemize{
+\section{Version 1.1.1}{\itemize{
 \item
 Bug fixes for adding missing values in simulations.}
 }
